@@ -27,6 +27,12 @@ backups/
 .HA_VERSION
 config_entries.json
 
+# Certificates and keys
+*.pem
+
+# Image cache
+image/
+
 # IDE files
 .vscode/
 .idea/

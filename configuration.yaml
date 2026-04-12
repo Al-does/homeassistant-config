@@ -1,12 +1,420 @@
-# Home Assistant Configuration
-#
-# This config is managed via Git. For new configuration, add YAML files
-# to the packages/ directory rather than editing this file directly.
-# See packages/README.md for details on the packages pattern.
 
-homeassistant:
-  packages: !include_dir_named packages/
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
 
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+
+logger:
+    default: info
+    
+python_script:
+
+input_datetime:
+  global_fader_start_time:
+    name: Global Fader Start Time
+    has_date: false
+    has_time: true
+    initial: "21:30:00"
+
+  global_fader_end_time:
+    name: Global Fader Bed Time
+    has_date: false
+    has_time: true
+    initial: "23:40:00"
+
+  global_lights_off_time:
+    name: Global Lights Off Time
+    has_date: false
+    has_time: true
+    initial: "01:05:00"
+
+  global_morning_time:
+    name: Global Morning Time
+    has_date: false
+    has_time: true
+    initial: "05:00:00"
+
+  light_kitchen_desk_lamp_start_time:
+    name: Kitchen Desk Lamp Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_desk_lamp_end_time:
+    name: Kitchen Desk Lamp End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_under_cabinet_lights_start_time:
+    name: UCL Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_under_cabinet_lights_end_time:
+    name: UCL End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_bookshelf_lights_start_time:
+    name: Bookshelf Lights Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_bookshelf_lights_end_time:
+    name: Bookshelf Lights End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_dimmable_light_1_start_time:
+    name: Dimmable Light 1 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_dimmable_light_1_end_time:
+    name: Dimmable Light 1 End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_urban_outfiters_start_time:
+    name: Urban Outfiters Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_urban_outfiters_end_time:
+    name: Urban Outfiters End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_giraffe_lamp_start_time:
+    name: Giraffe Lamp Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_giraffe_lamp_end_time:
+    name: Giraffe Lamp End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_1_start_time:
+    name: Hue White Lamp 1 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_1_end_time:
+    name: Hue White Lamp 1 End Time
+    has_date: false
+    has_time: true
+    initial: "22:30:00"
+    
+  light_hue_white_lamp_2_start_time:
+    name: Hue White Lamp 1 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+    
+  light_hue_white_lamp_2_end_time:
+    name: Hue White Lamp 2 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_3_start_time:
+    name: Hue White Lamp 3 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+    
+  light_hue_white_lamp_3_end_time:
+    name: Hue White Lamp 3 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+    
+  light_living_room_pendants_start_time:
+    name: Living Room Pendants Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+    
+  light_living_room_pendants_end_time:
+    name: Living Room Pendants Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+input_number:
+  light_kitchen_desk_lamp_max_brightness:
+    name: Kitchen Desk Lamp Max Brightness
+    initial: 255
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_desk_lamp_min_brightness:
+    name: Kitchen Desk Lamp Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+    
+  light_under_cabinet_lights_max_brightness:
+    name: UCL Max Brightness
+    initial: 125
+    min: 0
+    max: 255
+    step: 1
+
+  light_under_cabinet_lights_min_brightness:
+    name: UCL Min Brightness
+    initial: 1
+    min: 0
+    max: 255
+    step: 1
+
+  light_bookshelf_lights_max_brightness:
+    name: Bookshelf Lights Max Brightness
+    initial: 250
+    min: 0
+    max: 255
+    step: 1
+
+  light_bookshelf_lights_min_brightness:
+    name: Bookshelf Lights Min Brightness
+    initial: 1
+    min: 0
+    max: 255
+    step: 1
+    
+  light_dimmable_light_1_max_brightness:
+    name: Dimmable Light 1 Max Brightness
+    initial: 125
+    min: 0
+    max: 255
+    step: 1
+
+  light_dimmable_light_1_min_brightness:
+    name: Dimmable Light 1 Min Brightness
+    initial: 1
+    min: 0
+    max: 255
+    step: 1
+
+  light_urban_outfiters_max_brightness:
+    name: Urban Outfiters Max Brightness
+    initial: 255
+    min: 0
+    max: 255
+    step: 1
+
+  light_urban_outfiters_min_brightness:
+    name: Urban Outfiters Min Brightness
+    initial: 1
+    min: 0
+    max: 255
+    step: 1
+
+  light_giraffe_lamp_max_brightness:
+    name: Giraffe Lamp Max Brightness
+    initial: 255
+    min: 0
+    max: 255
+    step: 1
+
+  light_giraffe_lamp_min_brightness:
+    name: Giraffe Lamp Min Brightness
+    initial: 1
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_white_lamp_1_max_brightness:
+    name: Hue White Lamp 1 Max Brightness
+    initial: 250
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_white_lamp_1_min_brightness:
+    name: Hue White Lamp 1 Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_white_lamp_2_max_brightness:
+    name: Hue White Lamp 2 Max Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_white_lamp_2_min_brightness:
+    name: Hue White Lamp 2 Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+    
+  light_hue_white_lamp_3_max_brightness:
+    name: Hue White Lamp 3 Max Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_white_lamp_3_min_brightness:
+    name: Hue White Lamp 3 Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+    
+  light_living_room_pendants_max_brightness:
+    name: Living Room Pendants Max Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_living_room_pendants_min_brightness:
+    name: Living Room Pendants Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+    
+input_boolean:
+  light_kitchen_desk_lamp_is_active:
+    name: Kitchen Desk Lamp Active
+    initial: false
+
+  light_kitchen_desk_lamp_needs_reset:
+    name: Kitchen Desk Lamp needs reset
+    initial: false
+
+  light_living_room_pendants_is_active:
+    name: Living Room Pendants Active
+    initial: false
+
+  light_living_room_pendants_needs_reset:
+    name: Living Room Pendantsn needs reset
+    initial: false
+
+  light_under_cabinet_lights_is_active:
+    name: UCL Active
+    initial: false
+    
+  light_under_cabinet_lights_needs_reset:
+    name: UCL needs reset
+    initial: false
+    
+  light_bookshelf_lights_is_active:
+    name: Bookshelf Lights Active
+    initial: false
+    
+  light_bookshelf_lights_needs_reset:
+    name: Bookshelf Lights needs reset
+    initial: false
+
+  light_dimmable_light_1_is_active:
+    name: Dimmable Light 1 Active
+    initial: false
+    
+  light_dimmable_light_1_needs_reset:
+    name: Dimmable Light 1 needs reset
+    initial: false
+
+  light_urban_outfiters_is_active:
+    name: Urban Outfiters Active
+    initial: false
+    
+  light_urban_outfiters_needs_reset:
+    name: Urban Outfiters needs reset
+    initial: false
+
+  light_giraffe_lamp_is_active:
+    name: Giraffe Lamp Active
+    initial: false
+    
+  light_giraffe_lamp_needs_reset:
+    name: Giraffe Lamp needs reset
+    initial: false
+    
+  light_hue_white_lamp_1_is_active:
+    name: Hue White Lamp 1 Active
+    initial: false
+    
+  light_hue_white_lamp_1_needs_reset:
+    name: Hue White Lamp 1 needs reset
+    initial: false
+    
+  light_hue_white_lamp_2_is_active:
+    name: Hue White Lamp 2 Active
+    initial: false
+    
+  light_hue_white_lamp_2_needs_reset:
+    name: Hue White Lamp 2 needs reset
+    initial: false
+    
+  light_hue_white_lamp_3_is_active:
+    name: Hue White Lamp 3 Active
+    initial: false
+    
+  light_hue_white_lamp_3_needs_reset:
+    name: Hue White Lamp 3 needs reset
+    initial: false
+
+  fader_booster_is_active:
+    name: Fader Booster Is Active
+    initial: false
+    
+  fader_retarder_is_active:
+    name: Fader Retarder Is Active
+    initial: false
+    
+  need_to_reactivate_dining_room_dimmer:
+    name: Need to Reactivate Kitchen Dimmer
+    initial: false
+    
+  need_to_reactivate_art_room_dimmer:
+    name: Need to Reactivate Kitchen Dimmer
+    initial: false
+    
+  need_to_reactivate_kitchen_dimmer:
+    name: Need to Reactivate Kitchen Dimmer
+    initial: false
+
+  guest_mode:
+    name: Guest Mode Is Active
+    initial: false
+
+input_button:
+  deactivate_dimmer:
+    name: Deactivate Dimmer
+
+  reactivate_dimmer:
+    name: Reactivate Dimmer
+
+  kitchen_bright_button:
+    name: Make Kitchen Bright Again
+    
+  reactivate_kitchen_dimmer:
+    name: reactivate kitchen fader
