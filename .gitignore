@@ -1,0 +1,32 @@
+# Secrets — NEVER commit this
+secrets.yaml
+
+# Database files
+*.db
+*.db-*
+home-assistant_v2.db*
+zigbee.db
+
+# Internal HA storage
+.storage/
+.cloud/
+
+# Cache and generated files
+tts/
+deps/
+__pycache__/
+*.log
+*.pid
+home-assistant.log*
+OZW_Log.txt
+
+# Backups
+backups/
+
+# HA metadata
+.HA_VERSION
+config_entries.json
+
+# IDE files
+.vscode/
+.idea/

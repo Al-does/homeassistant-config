@@ -1,0 +1,12 @@
+# Home Assistant Configuration
+#
+# This config is managed via Git. For new configuration, add YAML files
+# to the packages/ directory rather than editing this file directly.
+# See packages/README.md for details on the packages pattern.
+
+homeassistant:
+  packages: !include_dir_named packages/
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml

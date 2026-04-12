@@ -1,0 +1,16 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 256
+  truthy:
+    # HA uses on/off extensively as state values
+    allowed-values: ["true", "false", "yes", "no", "on", "off"]
+  comments:
+    min-spaces-from-content: 1
+  document-start: disable
+
+ignore:
+  - secrets.yaml
+  - custom_components/
