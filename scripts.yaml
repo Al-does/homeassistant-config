@@ -1474,7 +1474,9 @@ make_art_room_bright_again:
     target:
      entity_id:
       - light.urban_outfiters
-      - light.bookshelf_lights
+      - light.dimmable_light_1_2
+      - light.dimmable_light_1_3
+      - light.dimmable_light_1_4
     data:
      brightness_pct: 100
   - service: input_boolean.turn_off
@@ -1521,7 +1523,9 @@ al_is_tired:
        - light.hue_white_lamp_1
        - light.hue_white_lamp_2
        - light.hue_white_lamp_3
-       - light.bookshelf_lights
+       - light.dimmable_light_1_2
+       - light.dimmable_light_1_3
+       - light.dimmable_light_1_4
        - light.giraffe_lamp
        - light.kitchen_desk_lamp
        - light.urban_outfiters

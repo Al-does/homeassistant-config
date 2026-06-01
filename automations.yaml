@@ -115,7 +115,7 @@
   action:
   - service: python_script.hello_world
     data:
-      function_name: adjust_brightness
+      function_name: adjust_bookshelf_brightness
       entity_id: light.bookshelf_lights
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
@@ -410,7 +410,45 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.bookshelf_lights
+      light: light.dimmable_light_1_2
+      transitionTime:
+        hours: 0
+        minutes: 45
+        seconds: 0
+      endBrightnessPercent: 100
+  - service: script.1720765151144
+    metadata: {}
+    data:
+      lampBrightnessScale: zeroToTwoFiftyFive
+      easingTypeInput: easeInOutCubic
+      endBrightnessEntityScale: zeroToOneHundred
+      autoCancelThreshold: 10
+      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
+      shouldResetTheStopEntityToOffAtStart: false
+      shouldInvertTheValueOfTheStopEntity: false
+      minimumStepDelayInMilliseconds: 100
+      shouldTryToUseNativeLampTransitionsToo: false
+      isDebugMode: false
+      light: light.dimmable_light_1_3
+      transitionTime:
+        hours: 0
+        minutes: 45
+        seconds: 0
+      endBrightnessPercent: 100
+  - service: script.1720765151144
+    metadata: {}
+    data:
+      lampBrightnessScale: zeroToTwoFiftyFive
+      easingTypeInput: easeInOutCubic
+      endBrightnessEntityScale: zeroToOneHundred
+      autoCancelThreshold: 10
+      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
+      shouldResetTheStopEntityToOffAtStart: false
+      shouldInvertTheValueOfTheStopEntity: false
+      minimumStepDelayInMilliseconds: 100
+      shouldTryToUseNativeLampTransitionsToo: false
+      isDebugMode: false
+      light: light.dimmable_light_1_4
       transitionTime:
         hours: 0
         minutes: 45
@@ -561,7 +599,9 @@
       - light.under_cabinet_lights
       - light.dimmable_light_1
       - light.hue_white_lamp_1
-      - light.bookshelf_lights
+      - light.dimmable_light_1_2
+      - light.dimmable_light_1_3
+      - light.dimmable_light_1_4
       - light.giraffe_lamp
       - light.kitchen_desk_lamp
       - light.urban_outfiters
@@ -634,7 +674,9 @@
     - light.hue_white_lamp_1
     - light.hue_white_lamp_2
     - light.hue_white_lamp_3
-    - light.bookshelf_lights
+    - light.dimmable_light_1_2
+    - light.dimmable_light_1_3
+    - light.dimmable_light_1_4
     - light.giraffe_lamp
     - light.kitchen_desk_lamp
     - light.urban_outfiters
