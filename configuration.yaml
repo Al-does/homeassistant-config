@@ -418,3 +418,12 @@ input_button:
     
   reactivate_kitchen_dimmer:
     name: reactivate kitchen fader
+
+lovelace:
+  dashboards:
+    the-circle:
+      mode: yaml
+      title: The Circle
+      icon: mdi:circle-outline
+      show_in_sidebar: true
+      filename: dashboards/the-circle.yaml

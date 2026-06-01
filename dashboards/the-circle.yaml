@@ -1,0 +1,15 @@
+title: The Circle
+views:
+  - title: The Circle
+    path: the-circle
+    cards:
+      - type: markdown
+        content: |
+          Adjust the three global times that drive the evening light fade script.
+      - type: entities
+        title: Fade Schedule
+        show_header_toggle: false
+        entities:
+          - entity: input_datetime.global_fader_start_time
+          - entity: input_datetime.global_fader_end_time
+          - entity: input_datetime.global_lights_off_time
