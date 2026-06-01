@@ -773,15 +773,32 @@
   mode: single
 - id: '1725173419667'
   alias: Kitchen Four Button Automations
-  description: ''
+  description: 'Kitchen remote: btn1 kitchen bright/dim, btn2 dining bright/dim, btn3 art bright/dim, btn4 art off'
   use_blueprint:
     path: zpriddy/ts0044_zigbee_remote.yaml
     input:
-      ts0044_device: 9b609a71221502fb758de6c51cb0f201
+      ts0044_device: ee45e2e4d85ceb2cc7be28ecff2fdee1
       button_1_press:
       - metadata: {}
         data: {}
         action: script.make_kitchen_bright_again
+      button_1_double_press:
+      - metadata: {}
+        data: {}
+        action: script.reactivate_kitchen_dimmer
+      button_2_press:
+      - data: {}
+        action: script.make_dining_room_bright_again
+      button_2_double_press:
+      - metadata: {}
+        data: {}
+        action: script.reactivate_dining_room_dimmer
+      button_3_press:
+      - data: {}
+        action: script.make_art_room_bright_again
+      button_3_double_press:
+      - data: {}
+        action: script.reactivate_art_room_dimmer
       button_4_press:
       - action: light.turn_off
         metadata: {}
@@ -789,23 +806,6 @@
           transition: 7
         target:
           area_id: art_room
-      button_3_double_press:
-      - data: {}
-        action: script.reactivate_art_room_dimmer
-      button_3_press:
-      - data: {}
-        action: script.make_art_room_bright_again
-      button_2_press:
-      - data: {}
-        action: script.make_dining_room_bright_again
-      button_2_double_press:
-      - metadata: {}
-        data: {}
-        action: script.make_dining_room_bright_again
-      button_1_double_press:
-      - metadata: {}
-        data: {}
-        action: script.reactivate_kitchen_dimmer
 - id: '1725174425883'
   alias: AQI is above a value
   description: ''

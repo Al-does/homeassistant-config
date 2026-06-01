@@ -167,7 +167,7 @@ action:
   - conditions:
     - condition: trigger
       id:
-      - b1-1
+      - b2-1
     sequence: !input button_2_press
   - conditions:
     - condition: trigger
