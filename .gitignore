@@ -33,6 +33,10 @@ config_entries.json
 # Image cache
 image/
 
+# MCP config (contains tokens)
+.mcp.json
+.env.mcp
+
 # IDE files
 .vscode/
 .idea/
