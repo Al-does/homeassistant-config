@@ -1,4 +1,23 @@
-def calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time):
+BOOKSHELF_LIGHT_ENTITIES = [
+    "light.dimmable_light_1_2",
+    "light.dimmable_light_1_3",
+    "light.dimmable_light_1_4",
+]
+
+
+def get_bookshelf_current_brightness():
+    """Return the brightest active shelf bulb, or 0 if all are off."""
+    brightness = 0
+    for light_entity in BOOKSHELF_LIGHT_ENTITIES:
+        light_state = hass.states.get(light_entity)
+        if light_state and light_state.state == "on":
+            bulb_brightness = light_state.attributes.get("brightness")
+            if bulb_brightness is not None:
+                brightness = max(brightness, int(bulb_brightness))
+    return brightness
+
+
+def calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time, current_brightness_override=None):
     # Helper function to convert time string to minutes
     def time_to_minutes(time_str):
         h, m, s = time_str.split(':')
@@ -21,13 +40,16 @@ def calculate_brightness(current_time, start_time, end_time, max_brightness, min
     min_brightness = int(float(min_brightness))
     
     # Get the light's current brightness
-    light_state = hass.states.get(entity_id)
-    if light_state and 'brightness' in light_state.attributes:
-        current_brightness = light_state.attributes['brightness']
-        if current_brightness is None:
-            current_brightness = 0
+    if current_brightness_override is not None:
+        current_brightness = current_brightness_override
     else:
-        current_brightness = 0  # Light is off or brightness attribute is not available
+        light_state = hass.states.get(entity_id)
+        if light_state and 'brightness' in light_state.attributes:
+            current_brightness = light_state.attributes['brightness']
+            if current_brightness is None:
+                current_brightness = 0
+        else:
+            current_brightness = 0  # Light is off or brightness attribute is not available
     
     # Adjust for wrap-around times
     if 0 <= global_lights_off_minutes < global_morning_minutes:
@@ -115,13 +137,6 @@ def calculate_brightness(current_time, start_time, end_time, max_brightness, min
     else:
         return output
         
-BOOKSHELF_LIGHT_ENTITIES = [
-    "light.dimmable_light_1_2",
-    "light.dimmable_light_1_3",
-    "light.dimmable_light_1_4",
-]
-
-
 def adjust_brightness(entity_id, current_time, sunset_time):
     # Get the boolean value
     formated_entity_id = entity_id.replace(".", "_")
@@ -196,6 +211,7 @@ def adjust_bookshelf_brightness(current_time, sunset_time):
         input_boolean_entity,
         formated_entity_id,
         sunset_time,
+        current_brightness_override=get_bookshelf_current_brightness(),
     )
 
     try:

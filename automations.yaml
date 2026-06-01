@@ -116,7 +116,6 @@
   - service: python_script.hello_world
     data:
       function_name: adjust_bookshelf_brightness
-      entity_id: light.bookshelf_lights
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
