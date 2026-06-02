@@ -1,23 +1,4 @@
-BOOKSHELF_LIGHT_ENTITIES = [
-    "light.dimmable_light_1_2",
-    "light.dimmable_light_1_3",
-    "light.dimmable_light_1_4",
-]
-
-
-def get_bookshelf_current_brightness():
-    """Return the brightest active shelf bulb, or 0 if all are off."""
-    brightness = 0
-    for light_entity in BOOKSHELF_LIGHT_ENTITIES:
-        light_state = hass.states.get(light_entity)
-        if light_state and light_state.state == "on":
-            bulb_brightness = light_state.attributes.get("brightness")
-            if bulb_brightness is not None:
-                brightness = max(brightness, int(bulb_brightness))
-    return brightness
-
-
-def calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time, current_brightness_override=None):
+def calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time):
     # Helper function to convert time string to minutes
     def time_to_minutes(time_str):
         h, m, s = time_str.split(':')
@@ -40,16 +21,13 @@ def calculate_brightness(current_time, start_time, end_time, max_brightness, min
     min_brightness = int(float(min_brightness))
     
     # Get the light's current brightness
-    if current_brightness_override is not None:
-        current_brightness = current_brightness_override
+    light_state = hass.states.get(entity_id)
+    if light_state and 'brightness' in light_state.attributes:
+        current_brightness = light_state.attributes['brightness']
+        if current_brightness is None:
+            current_brightness = 0
     else:
-        light_state = hass.states.get(entity_id)
-        if light_state and 'brightness' in light_state.attributes:
-            current_brightness = light_state.attributes['brightness']
-            if current_brightness is None:
-                current_brightness = 0
-        else:
-            current_brightness = 0  # Light is off or brightness attribute is not available
+        current_brightness = 0  # Light is off or brightness attribute is not available
     
     # Adjust for wrap-around times
     if 0 <= global_lights_off_minutes < global_morning_minutes:
@@ -178,59 +156,6 @@ def adjust_brightness(entity_id, current_time, sunset_time):
         hass.services.call("light", "turn_on", {"entity_id": entity_id, "brightness": brightness})
 
 
-def adjust_bookshelf_brightness(current_time, sunset_time):
-    """Use light_bookshelf_lights helpers but drive the three shelf bulbs."""
-    entity_id = "light.bookshelf_lights"
-    formated_entity_id = entity_id.replace(".", "_")
-    input_boolean_entity = "input_boolean." + formated_entity_id + "_is_active"
-    is_active = hass.states.get(input_boolean_entity).state == "on"
-
-    start_time_entity = "input_datetime." + formated_entity_id + "_start_time"
-    start_time = hass.states.get(start_time_entity).state
-    if start_time == "12:34:56":
-        start_time = hass.states.get("input_datetime.global_fader_start_time").state
-
-    end_time_entity = "input_datetime." + formated_entity_id + "_end_time"
-    end_time = hass.states.get(end_time_entity).state
-    if end_time == "12:34:56":
-        end_time = hass.states.get("input_datetime.global_fader_end_time").state
-
-    min_brightness = float(
-        hass.states.get("input_number." + formated_entity_id + "_min_brightness").state
-    )
-    max_brightness = float(
-        hass.states.get("input_number." + formated_entity_id + "_max_brightness").state
-    )
-
-    brightness = calculate_brightness(
-        current_time,
-        start_time,
-        end_time,
-        max_brightness,
-        min_brightness,
-        input_boolean_entity,
-        formated_entity_id,
-        sunset_time,
-        current_brightness_override=get_bookshelf_current_brightness(),
-    )
-
-    try:
-        brightness = int(brightness)
-    except (TypeError, ValueError) as e:
-        logger.error(
-            "Cannot convert bookshelf brightness to int. time {}, start {}, end {}, max {}, min {}. Error: {}".format(
-                current_time, start_time, end_time, max_brightness, min_brightness, str(e)
-            )
-        )
-        return
-
-    if is_active:
-        for light_entity in BOOKSHELF_LIGHT_ENTITIES:
-            hass.services.call(
-                "light", "turn_on", {"entity_id": light_entity, "brightness": brightness}
-            )
-
-
 # Get the function to call and the parameters from the input data
 function_name = data.get("function_name")
 entity_id = data.get("entity_id")
@@ -242,7 +167,5 @@ if function_name == "greet":
     pass
 elif function_name == "adjust_brightness":
     adjust_brightness(entity_id, current_time, sunset_time)
-elif function_name == "adjust_bookshelf_brightness":
-    adjust_bookshelf_brightness(current_time, sunset_time)
 else:
     logger.info("Unknown function: {}".format(function_name))

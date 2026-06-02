@@ -1,0 +1,8 @@
+# Light groups for unified control of multi-bulb fixtures.
+light:
+  - platform: group
+    name: Bookshelf Lights
+    entities:
+      - light.dimmable_light_1_2  # Bookshelf Center
+      - light.dimmable_light_1_3  # Bookshelf Upper
+      - light.dimmable_light_1_4  # Bookshelf Lower

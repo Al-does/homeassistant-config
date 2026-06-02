@@ -115,7 +115,8 @@
   action:
   - service: python_script.hello_world
     data:
-      function_name: adjust_bookshelf_brightness
+      function_name: adjust_brightness
+      entity_id: light.bookshelf_lights
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
@@ -598,9 +599,7 @@
       - light.under_cabinet_lights
       - light.dimmable_light_1
       - light.hue_white_lamp_1
-      - light.dimmable_light_1_2
-      - light.dimmable_light_1_3
-      - light.dimmable_light_1_4
+      - light.bookshelf_lights
       - light.giraffe_lamp
       - light.kitchen_desk_lamp
       - light.urban_outfiters
@@ -673,9 +672,7 @@
     - light.hue_white_lamp_1
     - light.hue_white_lamp_2
     - light.hue_white_lamp_3
-    - light.dimmable_light_1_2
-    - light.dimmable_light_1_3
-    - light.dimmable_light_1_4
+    - light.bookshelf_lights
     - light.giraffe_lamp
     - light.kitchen_desk_lamp
     - light.urban_outfiters
