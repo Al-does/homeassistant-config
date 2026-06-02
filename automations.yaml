@@ -721,11 +721,9 @@
   alias: Light On Art Room if Occupied
   description: ''
   trigger:
-  - type: occupied
-    platform: device
-    device_id: e1a9f6607db2998c466ff4d1eb80d211
-    entity_id: c054c7776f2abe52a6604332db985839
-    domain: binary_sensor
+  - platform: state
+    entity_id: binary_sensor.presence_sensor_fp2_a12d_presence_sensor_1
+    to: 'on'
   condition:
   - condition: sun
     before: sunset
@@ -741,11 +739,9 @@
   alias: Light Off Art Room if Unoccupied
   description: ''
   trigger:
-  - type: not_occupied
-    platform: device
-    device_id: e1a9f6607db2998c466ff4d1eb80d211
-    entity_id: c054c7776f2abe52a6604332db985839
-    domain: binary_sensor
+  - platform: state
+    entity_id: binary_sensor.presence_sensor_fp2_a12d_presence_sensor_1
+    to: 'off'
   condition:
   - condition: sun
     before: sunset
@@ -867,7 +863,7 @@
       message: Bro, gas outside is trash. AQI high. Batten it down.
     target:
       entity_id:
-      - device_tracker.pixel_9_pro_fold_4
+      - device_tracker.pixel_10_pro_fold_2
       - person.alex_vardakostas
   mode: single
 - id: '1725215705319'
@@ -1078,7 +1074,7 @@
       seconds: 0
   conditions: []
   actions:
-  - action: notify.mobile_app_pixel_9_pro_fold
+  - action: notify.mobile_app_pixel_10_pro_fold
     metadata: {}
     data:
       message: Dearest Al, CO2 is above 580 :)
