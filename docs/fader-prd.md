@@ -172,6 +172,15 @@ issue `brightness: 0`.
   (6.9) or the next window's engagement.
 - A mid-window manual power-ON stays manual (the user is presumably using the
   light); the Fader does not seize it until the next window or a Reset.
+- CRITICAL engagement requirement: the per-minute drivers (`fade_<light>`) only run
+  while `<f>_is_active == on`. Therefore a manual DIM must NOT turn `_is_active` off
+  -- the light must remain engaged so the descending curve can "catch down" and the
+  auto-resume (6.5) can fire. Model the brighten-yield as a SEPARATE flag, not by
+  disengaging `_is_active`.
+  [CHANGE vs current code: today the engine turns `_is_active` OFF on any deviation
+   beyond the deadband, which permanently stops evaluation and breaks dim auto-resume.
+   `_is_active` must mean "engaged for this evening" and only be cleared by explicit
+   disengage events (away, deactivate button, make-bright-again, end of night).]
 
 ### 6.8 Booster (existing behavior to preserve)
 - When `fader_booster_is_active` is on: multiply the computed brightness by 1.2
@@ -266,3 +275,72 @@ H. Deadband: with the light on the curve, a sub-10% reported fluctuation does no
   `_needs_reset` entities (and ideally `input_boolean.turn_off` them instead, so any
   stale yield from the previous evening is cleared). Engagement must set only
   `_is_active`; the unified hold rule (6.5) then governs the rest.
+
+## 12. Integration points & automation hooks (in `automations.yaml` / `scripts.yaml`)
+The Fader is wired to the rest of the system through the following hooks. Any
+re-implementation must preserve these contracts (entity names, the meaning of
+`_is_active` / `_needs_reset`, and the room groupings).
+
+- Engagement: `turn_on_lights_boolean` at `global_fader_start_time` (presence + not
+  guest_mode). Must set only `_is_active` (see 7 and 11).
+- Per-minute drivers: `fade_<light>` (one per managed light), `time_pattern
+  minutes: /1`, gated on `<f>_is_active == on`, calling `python_script.hello_world`
+  with `function_name: adjust_brightness`. Because evaluation is gated on
+  `_is_active`, that flag must stay on through manual dims (see 6.7, CRITICAL).
+- Reset-to-Schedule: scripts `reactivate_kitchen_dimmer`,
+  `reactivate_dining_room_dimmer`, `reactivate_art_room_dimmer` (set `_needs_reset`
+  + `_is_active` for their room group), `reactivate_all_dimmers` (runs all three),
+  and automation `reactivate_kitchen_dimmer_auto` (button
+  `input_button.reactivate_kitchen_dimmer`). Together the room groups cover all 10
+  managed lights.
+- Brighten-and-disengage: scripts `make_kitchen_bright_again`,
+  `make_dining_room_bright_again`, `make_art_room_bright_again` (and automation
+  `make_the_kitchen_bright_again_2`). These set lights to full brightness and turn
+  `_is_active` OFF -- the explicit "I want it bright now" path. Re-engagement is via
+  a Reset. Keep this path consistent with the yield model in 6.7.
+- Bulk deactivate/reactivate buttons: `turn_off_multiple_fader_booleans_3`
+  (`input_button.deactivate_dimmer`) and `turn_on_multiple_fader_booleans_3`
+  (`input_button.reactivate_dimmer`). NOTE: these currently cover only 7 of 10
+  lights (see 13).
+- Presence/away:
+  - `turn_off_lights_when_no_one_is_home` turns lights off and `_is_active` off for
+    all 10 lights -- the canonical full disengage.
+  - `restore_lights_when_returning_home A/B` and the zone-arrival automations
+    (`Turn on Lights When ... Comes Home`) re-engage via `_is_active` or the
+    reactivate (reset) scripts.
+- Schedule-boundary re-assertion: `run_scripts_after_global_fader_end_time` and
+  `run_scripts_after_global_lights_off_time` fire the reactivate (reset) scripts
+  ~60s after those anchors, forcing conformance. These depend on:
+  end -> floor (6.5), overnight -> off, and out-of-window Reset -> OFF (6.6, 6.9).
+- Daytime presence reset: `Light Off Art Room if Unoccupied` calls
+  `reactivate_art_room_dimmer` during the day. This RELIES on out-of-window Reset
+  resolving to OFF (6.9 / scenario 9.C); if that behavior changes, this breaks.
+
+### Relationship to the sunset "Fade In" automations (handoff, not Fader)
+- Automations `Fade In - L-Bar Lights`, `Fade In - L-Desk`, `Fade In - Art Room`,
+  `Fade In - L-Giraffe lamp`, `Fade In - Kitchen` use a third-party easing script
+  (`script.1720765151144`) to brighten lights UP around sunset. They do NOT set
+  `_is_active` and are independent of the Fader engine.
+- This means a script-based "fade to on" already exists (cf. the section 4 Non-Goal,
+  which concerns NOT adding raising logic to the Fader engine itself).
+- Handoff contract: at `global_fader_start_time` the Fader engages and, via the
+  never-brighten / unified hold rule (6.5), holds each light at wherever the Fade-In
+  left it until the descending curve catches down -- so the Fader never yanks these
+  lights up or abruptly down at handoff.
+
+## 13. Additional issues found in the automations (fix or confirm)
+- Coverage gap: `turn_off_multiple_fader_booleans_3` and
+  `turn_on_multiple_fader_booleans_3` operate on only 7 lights (missing
+  `light_hue_white_lamp_2`, `light_hue_white_lamp_3`, `light_living_room_pendants`).
+  Decide whether these buttons should cover all 10 managed lights.
+- Likely-broken entity references:
+  - `restore_lights_when_returning_home B` ("Reactivate Dimmers on Arrival") triggers
+    and conditions reference `person.name1` / `person.name2`, which appear to be
+    placeholders rather than the real `person.alex_vardakostas` /
+    `person.anna_tong`. This automation likely never fires as intended.
+  - `restore_lights_when_returning_home A`'s brightness template reads
+    `state_attr('input_number.light_<person>_max_brightness', 'state')`, which is
+    incorrect (input_number value is the state, not a `state` attribute; and the
+    entity is keyed by person, not light). It always falls back to 255.
+- These are independent of the core engine logic but touch the same `_is_active` /
+  brightness contracts, so confirm intended behavior before relying on them.
