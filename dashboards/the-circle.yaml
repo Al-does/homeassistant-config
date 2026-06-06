@@ -13,3 +13,32 @@ views:
           - entity: input_datetime.global_fader_start_time
           - entity: input_datetime.global_fader_end_time
           - entity: input_datetime.global_lights_off_time
+      - type: markdown
+        content: |
+          Reset a room's lights so the fader recalculates brightness on the next fade cycle.
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Kitchen
+            icon: mdi:pot-steam
+            tap_action:
+              action: call-service
+              service: script.reactivate_kitchen_dimmer
+          - type: button
+            name: Dining Room
+            icon: mdi:silverware-fork-knife
+            tap_action:
+              action: call-service
+              service: script.reactivate_dining_room_dimmer
+          - type: button
+            name: Art Room
+            icon: mdi:palette
+            tap_action:
+              action: call-service
+              service: script.reactivate_art_room_dimmer
+      - type: button
+        name: Reset All Rooms
+        icon: mdi:home-lightbulb
+        tap_action:
+          action: call-service
+          service: script.reactivate_all_dimmers
