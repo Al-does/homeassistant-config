@@ -583,6 +583,9 @@
   - condition: template
     value_template: '{{ (states(''person.alex_vardakostas'') == ''home'') | int +
       (states(''person.anna_tong'') == ''home'') | int == 1 }}'
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
   - service: script.reactivate_all_dimmers
     metadata: {}
@@ -669,9 +672,26 @@
     value_template: '{{ (states(''input_datetime.global_lights_off_time'') | as_timestamp)
       + 60 <= now().timestamp() }}'
   action:
-  - service: script.reactivate_art_room_dimmer
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      sequence:
+      - service: script.reactivate_art_room_dimmer
   - service: script.reactivate_kitchen_dimmer
   - service: script.reactivate_dining_room_dimmer
+- id: disengage_art_room_fader_when_guest_mode_turns_on
+  alias: Disengage Art Room Fader When Guest Mode Turns On
+  description: Stop the art room fader from managing lights when guest mode is enabled.
+  trigger:
+  - platform: state
+    entity_id: input_boolean.guest_mode
+    from: 'off'
+    to: 'on'
+  action:
+  - service: script.disengage_art_room_fader
+  mode: single
 - id: '1724961941909'
   alias: Light On Art Room if Occupied
   description: ''
@@ -773,7 +793,7 @@
   use_blueprint:
     path: zpriddy/ts0044_zigbee_remote.yaml
     input:
-      ts0044_device: dd1d0b48afe1fcef04122f6494aff616
+      ts0044_device: c8687989e919e94fd3cb8ed976ce7224
       button_1_press:
       - action: script.art_room_overhead_max
       button_1_double_press:
