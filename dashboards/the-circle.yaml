@@ -33,62 +33,78 @@ views:
           entities:
             - entity: person.alex_vardakostas
             - entity: person.anna_tong
-      - type: horizontal-stack
+      - type: vertical-stack
         cards:
-          - type: button
-            name: Kitchen Max
-            icon: mdi:brightness-7
-            tap_action:
-              action: call-service
-              service: script.make_kitchen_bright_again
-          - type: button
-            name: Kitchen Reset
-            icon: mdi:pot-steam
-            tap_action:
-              action: call-service
-              service: script.reactivate_kitchen_dimmer
-      - type: horizontal-stack
+          - type: markdown
+            content: "**Kitchen**"
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Max
+                icon: mdi:brightness-7
+                tap_action:
+                  action: call-service
+                  service: script.make_kitchen_bright_again
+              - type: button
+                name: Reset
+                icon: mdi:refresh
+                tap_action:
+                  action: call-service
+                  service: script.reactivate_kitchen_dimmer
+      - type: vertical-stack
         cards:
-          - type: button
-            name: Dining Max
-            icon: mdi:brightness-7
-            tap_action:
-              action: call-service
-              service: script.make_dining_room_bright_again
-          - type: button
-            name: Dining Reset
-            icon: mdi:silverware-fork-knife
-            tap_action:
-              action: call-service
-              service: script.reactivate_dining_room_dimmer
-      - type: horizontal-stack
+          - type: markdown
+            content: "**Dining Room**"
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Max
+                icon: mdi:brightness-7
+                tap_action:
+                  action: call-service
+                  service: script.make_dining_room_bright_again
+              - type: button
+                name: Reset
+                icon: mdi:refresh
+                tap_action:
+                  action: call-service
+                  service: script.reactivate_dining_room_dimmer
+      - type: vertical-stack
         cards:
-          - type: button
-            name: Art Max
-            icon: mdi:brightness-7
-            tap_action:
-              action: call-service
-              service: script.make_art_room_bright_again
-          - type: button
-            name: Art Reset
-            icon: mdi:palette
-            tap_action:
-              action: call-service
-              service: script.reactivate_art_room_dimmer
-      - type: horizontal-stack
+          - type: markdown
+            content: "**Art Room**"
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Max
+                icon: mdi:brightness-7
+                tap_action:
+                  action: call-service
+                  service: script.make_art_room_bright_again
+              - type: button
+                name: Reset
+                icon: mdi:refresh
+                tap_action:
+                  action: call-service
+                  service: script.reactivate_art_room_dimmer
+      - type: vertical-stack
         cards:
-          - type: button
-            name: All Max
-            icon: mdi:brightness-7
-            tap_action:
-              action: call-service
-              service: script.make_all_rooms_max
-          - type: button
-            name: Reset All
-            icon: mdi:home-lightbulb
-            tap_action:
-              action: call-service
-              service: script.reactivate_all_dimmers
+          - type: markdown
+            content: "**All Rooms**"
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Max
+                icon: mdi:brightness-7
+                tap_action:
+                  action: call-service
+                  service: script.make_all_rooms_max
+              - type: button
+                name: Reset
+                icon: mdi:home-lightbulb
+                tap_action:
+                  action: call-service
+                  service: script.reactivate_all_dimmers
       - type: entities
         title: Fade Schedule
         show_header_toggle: false
