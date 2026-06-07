@@ -150,64 +150,86 @@ reactivate_wled_dimmer:
 
 make_kitchen_bright_again:
  alias: "Make the Kitchen Bright Again"
- description: "Sets kitchen lights to full brightness and turns off associated booleans"
+ description: "Sets kitchen lights to configured max brightness and turns off associated booleans"
+ mode: single
  sequence:
-  - service: light.turn_on
-    target:
-     entity_id:
-      - light.under_cabinet_lights
-      - light.dimmable_light_1
-      - light.hue_white_lamp_1
-      - light.hue_white_lamp_2
-      - light.hue_white_lamp_3
-    data:
-     brightness_pct: 100
+  - repeat:
+      for_each:
+        - light.under_cabinet_lights
+        - light.dimmable_light_1
+        - light.hue_white_lamp_1
+        - light.hue_white_lamp_2
+        - light.hue_white_lamp_3
+      sequence:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ repeat.item }}"
+          data:
+            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) }}"
   - service: input_boolean.turn_off
     target:
-     entity_id:
-      - input_boolean.light_under_cabinet_lights_is_active
-      - input_boolean.light_dimmable_light_1_is_active
-      - input_boolean.light_hue_white_lamp_1_is_active
-      - input_boolean.light_hue_white_lamp_2_is_active
-      - input_boolean.light_hue_white_lamp_3_is_active
-      
+      entity_id:
+        - input_boolean.light_under_cabinet_lights_is_active
+        - input_boolean.light_dimmable_light_1_is_active
+        - input_boolean.light_hue_white_lamp_1_is_active
+        - input_boolean.light_hue_white_lamp_2_is_active
+        - input_boolean.light_hue_white_lamp_3_is_active
+
 make_art_room_bright_again:
  alias: "Make the art Room Bright Again"
- description: "Sets art room lights to full brightness and turns off associated booleans"
+ description: "Sets art room lights to configured max brightness and turns off associated booleans"
+ mode: single
  sequence:
-  - service: light.turn_on
-    target:
-     entity_id:
-      - light.urban_outfiters
-      - light.hue_color_lamp_1_2
-      - light.bookshelf_lights
-    data:
-     brightness_pct: 100
+  - repeat:
+      for_each:
+        - light.urban_outfiters
+        - light.hue_color_lamp_1_2
+        - light.bookshelf_lights
+      sequence:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ repeat.item }}"
+          data:
+            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) }}"
   - service: input_boolean.turn_off
     target:
-     entity_id:
-      - input_boolean.light_bookshelf_lights_is_active
-      - input_boolean.light_urban_outfiters_is_active
-      - input_boolean.light_hue_color_lamp_1_2_is_active
+      entity_id:
+        - input_boolean.light_bookshelf_lights_is_active
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
 
 make_dining_room_bright_again:
  alias: "Make the dining Room Bright Again"
- description: "Sets dining room lights to full brightness and turns off associated booleans"
+ description: "Sets dining room lights to configured max brightness and turns off associated booleans"
+ mode: single
  sequence:
-  - service: light.turn_on
-    target:
-     entity_id:
-      - light.kitchen_desk_lamp
-      - light.living_room_pendants
-      - light.giraffe_lamp
-    data:
-     brightness_pct: 100
+  - repeat:
+      for_each:
+        - light.kitchen_desk_lamp
+        - light.living_room_pendants
+        - light.giraffe_lamp
+        - light.bar_wled
+        - light.window_top_shelf_wled
+        - light.window_mid_shelf_wled
+        - light.kitchen_top_shelf_wled_segment_1
+        - light.kitchen_mid_shelf_wled_segment_1
+      sequence:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ repeat.item }}"
+          data:
+            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) }}"
   - service: input_boolean.turn_off
     target:
-     entity_id:
-      - input_boolean.light_kitchen_desk_lamp_is_active
-      - input_boolean.light_living_room_pendants_is_active
-      - input_boolean.light_giraffe_lamp_is_active
+      entity_id:
+        - input_boolean.light_kitchen_desk_lamp_is_active
+        - input_boolean.light_living_room_pendants_is_active
+        - input_boolean.light_giraffe_lamp_is_active
+        - input_boolean.light_bar_wled_is_active
+        - input_boolean.light_window_top_shelf_wled_is_active
+        - input_boolean.light_window_mid_shelf_wled_is_active
+        - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+        - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
 
 al_is_tired:
  alias: "Al's Tired"
@@ -250,6 +272,17 @@ reactivate_all_dimmers:
      target:
       entity_id: script.reactivate_art_room_dimmer
  mode: single
+
+make_all_rooms_max:
+ alias: "Set All Rooms to Max Brightness"
+ mode: single
+ sequence:
+   - service: script.turn_on
+     target:
+      entity_id:
+        - script.make_kitchen_bright_again
+        - script.make_dining_room_bright_again
+        - script.make_art_room_bright_again
 
 art_room_overhead_max:
  alias: "Art Room Overhead Max Brightness"
