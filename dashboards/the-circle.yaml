@@ -7,13 +7,13 @@ views:
         conditions:
           - condition: template
             value_template: >-
-              {{ state_attr('climate.top_floor', 'current_temperature') | float(0) >= 78 }}
+              {{ states('sensor.living_room_temperature_2') | float(0) >= 78 }}
         card:
           type: markdown
           content: >
             ## ⚠️ Third Floor Hot
 
-            The third floor thermostat is **{{ state_attr('climate.top_floor', 'current_temperature') }}°F**.
+            The top floor thermostat is **{{ states('sensor.living_room_temperature_2') }}°F**.
             Consider turning on the A/C or lowering the setpoint.
       - type: conditional
         conditions:
@@ -141,9 +141,16 @@ views:
       - type: thermostat
         entity: climate.bedroom_2
         name: Bedroom
-      - type: thermostat
-        entity: climate.top_floor
-        name: Third Floor
+      - type: entities
+        title: Top Floor Thermostat
+        show_header_toggle: false
+        entities:
+          - entity: sensor.living_room_temperature_2
+            name: Temperature
+          - entity: binary_sensor.living_room_occupancy_2
+            name: Occupancy
+          - entity: sensor.living_room_battery_2
+            name: Battery
       - type: thermostat
         entity: climate.9424b8a1064b
         name: Gree Air Conditioner
