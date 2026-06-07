@@ -404,6 +404,7 @@
     data:
       lampBrightnessScale: zeroToTwoFiftyFive
       easingTypeInput: easeInOutCubic
+      endBrightnessPercent: 100
       endBrightnessEntityScale: zeroToOneHundred
       autoCancelThreshold: 10
       shouldStopIfTheLampIsTurnedOffDuringTheFade: true
@@ -412,50 +413,11 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.dimmable_light_1_2
+      light: light.bookshelf_lights
       transitionTime:
         hours: 0
         minutes: 45
         seconds: 0
-      endBrightnessPercent: 100
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.dimmable_light_1_3
-      transitionTime:
-        hours: 0
-        minutes: 45
-        seconds: 0
-      endBrightnessPercent: 100
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.dimmable_light_1_4
-      transitionTime:
-        hours: 0
-        minutes: 45
-        seconds: 0
-      endBrightnessPercent: 100
   mode: single
 - id: '1722037379150'
   alias: Fade In - L-Giraffe lamp
