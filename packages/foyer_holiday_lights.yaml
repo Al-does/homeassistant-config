@@ -1,0 +1,264 @@
+script:
+  foyer_apply_scheduled_lighting:
+    alias: Foyer - Apply scheduled lighting
+    description: Apply the foyer's holiday colors, or the normal warm setting on non-holidays.
+    mode: restart
+    sequence:
+      - variables:
+          holiday: >-
+            {% set month = now().month %}
+            {% set day = now().day %}
+            {% set weekday = now().weekday() %}
+            {% if month == 2 and day == 14 %}
+              valentines_day
+            {% elif month == 3 and day == 17 %}
+              st_patricks_day
+            {% elif month == 6 and day >= 24 and weekday in [5, 6] %}
+              sf_pride_weekend
+            {% elif month == 7 and day == 4 %}
+              independence_day
+            {% elif month == 10 and day == 31 %}
+              halloween
+            {% elif month == 11 and 22 <= day <= 28 and weekday == 3 %}
+              thanksgiving
+            {% elif month == 12 and 12 <= day <= 25 %}
+              christmas
+            {% elif (month == 12 and day == 31) or (month == 1 and day == 1) %}
+              new_year
+            {% else %}
+              none
+            {% endif %}
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'valentines_day' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [255, 0, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 105, 180]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [255, 0, 0]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'st_patricks_day' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [0, 180, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 255, 255]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [0, 180, 0]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'sf_pride_weekend' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [228, 3, 3]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 237, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [117, 7, 135]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'independence_day' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [0, 0, 255]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 255, 255]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [255, 0, 0]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'halloween' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [128, 0, 128]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 96, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [128, 0, 128]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'thanksgiving' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [255, 191, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 96, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  color_temp_kelvin: 2700
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'christmas' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [0, 180, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 0, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [0, 180, 0]
+                  brightness_pct: 100
+                  transition: 10
+          - conditions:
+              - condition: template
+                value_template: "{{ holiday | trim == 'new_year' }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_1
+                data:
+                  rgb_color: [255, 215, 0]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_3
+                data:
+                  rgb_color: [255, 255, 255]
+                  brightness_pct: 100
+                  transition: 10
+              - service: light.turn_on
+                target:
+                  entity_id: light.hue_color_downlight_2
+                data:
+                  rgb_color: [255, 215, 0]
+                  brightness_pct: 100
+                  transition: 10
+        default:
+          - service: light.turn_on
+            target:
+              entity_id: light.foyer
+            data:
+              color_temp_kelvin: 2700
+              brightness_pct: 100
+              transition: 10
+
+automation:
+  - id: foyer_lights_on_at_sunset
+    alias: Foyer - Lights on at sunset
+    description: Turn the foyer on at sunset with either the normal warm setting or holiday colors.
+    trigger:
+      - platform: sun
+        event: sunset
+    action:
+      - service: script.foyer_apply_scheduled_lighting
+    mode: single
+
+  - id: foyer_lights_off_overnight
+    alias: Foyer - Lights off overnight
+    description: Turn the foyer lights off at 1:30am.
+    trigger:
+      - platform: time
+        at: "01:30:00"
+    action:
+      - service: light.turn_off
+        target:
+          entity_id: light.foyer
+        data:
+          transition: 10
+    mode: single
