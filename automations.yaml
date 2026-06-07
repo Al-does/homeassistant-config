@@ -919,49 +919,33 @@
           transition: 5
         target:
           device_id: f5f43b38bab47a80ea1dd0dfc78c0766
-- id: humidity_control_with_smart_plug
-  alias: Control Humidity with Smart Plug
-  description: Turn smart plug on/off based on humidity sensor readings between specific
-    times
-  trigger:
-  - platform: time
-    at: '18:15:00'
-  - platform: time
-    at: '22:45:00'
-  - platform: state
-    entity_id: sensor.bedroom_current_humidity
-  condition: []
-  action:
+- id: boob_lamp_schedule
+  alias: Boob Lamp Schedule
+  description: Turn on at global fader start time and off at global fader bed time
+  triggers:
+  - trigger: time
+    at: input_datetime.global_fader_start_time
+    id: turn_on
+  - trigger: time
+    at: input_datetime.global_fader_end_time
+    id: turn_off
+  conditions: []
+  actions:
   - choose:
     - conditions:
-      - condition: time
-        after: '18:15:00'
-        before: '22:45:00'
-      - condition: numeric_state
-        entity_id: sensor.bedroom_current_humidity
-        above: 58
+      - condition: trigger
+        id: turn_on
       sequence:
-      - target:
-          entity_id: switch.sengled_smart_plug_1_switch
-        action: switch.turn_on
-        data: {}
+      - action: switch.turn_on
+        target:
+          entity_id: switch.sengled_switch_2_switch
     - conditions:
-      - condition: time
-        after: '18:15:00'
-        before: '22:45:00'
-      - condition: numeric_state
-        entity_id: sensor.bedroom_current_humidity
-        below: 50
+      - condition: trigger
+        id: turn_off
       sequence:
-      - target:
-          entity_id: switch.sengled_smart_plug_1_switch
-        action: switch.turn_off
-        data: {}
-    default:
-    - target:
-        entity_id: switch.sengled_smart_plug_1_switch
-      action: switch.turn_off
-      data: {}
+      - action: switch.turn_off
+        target:
+          entity_id: switch.sengled_switch_2_switch
   mode: single
 - id: '1732994456867'
   alias: Turn on third reality 1 grow light
