@@ -78,7 +78,7 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.kitchen_top_shelf_wled
+      light: light.kitchen_top_shelf_wled_segment_1
       transitionTime:
         hours: 0
         minutes: 30
@@ -97,7 +97,7 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.kitchen_mid_shelf_wled
+      light: light.kitchen_mid_shelf_wled_segment_1
       transitionTime:
         hours: 0
         minutes: 30
@@ -138,8 +138,8 @@
     - input_boolean.light_bar_wled_is_active
     - input_boolean.light_window_top_shelf_wled_is_active
     - input_boolean.light_window_mid_shelf_wled_is_active
-    - input_boolean.light_kitchen_top_shelf_wled_is_active
-    - input_boolean.light_kitchen_mid_shelf_wled_is_active
+    - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+    - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
   - service: input_boolean.turn_off
     entity_id:
     - input_boolean.light_kitchen_desk_lamp_needs_reset
@@ -156,8 +156,8 @@
     - input_boolean.light_bar_wled_needs_reset
     - input_boolean.light_window_top_shelf_wled_needs_reset
     - input_boolean.light_window_mid_shelf_wled_needs_reset
-    - input_boolean.light_kitchen_top_shelf_wled_needs_reset
-    - input_boolean.light_kitchen_mid_shelf_wled_needs_reset
+    - input_boolean.light_kitchen_top_shelf_wled_segment_1_needs_reset
+    - input_boolean.light_kitchen_mid_shelf_wled_segment_1_needs_reset
 - id: fade_under_cabinet_lights
   alias: call the UCL adjust_brightness routine every minute
   trigger:
@@ -403,13 +403,13 @@
     minutes: /1
   condition:
   - condition: state
-    entity_id: input_boolean.light_kitchen_top_shelf_wled_is_active
+    entity_id: input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
     state: 'on'
   action:
   - service: python_script.hello_world
     data:
       function_name: adjust_brightness
-      entity_id: light.kitchen_top_shelf_wled
+      entity_id: light.kitchen_top_shelf_wled_segment_1
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
@@ -420,13 +420,13 @@
     minutes: /1
   condition:
   - condition: state
-    entity_id: input_boolean.light_kitchen_mid_shelf_wled_is_active
+    entity_id: input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
     state: 'on'
   action:
   - service: python_script.hello_world
     data:
       function_name: adjust_brightness
-      entity_id: light.kitchen_mid_shelf_wled
+      entity_id: light.kitchen_mid_shelf_wled_segment_1
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
@@ -451,8 +451,8 @@
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
       - input_boolean.light_window_mid_shelf_wled_is_active
-      - input_boolean.light_kitchen_top_shelf_wled_is_active
-      - input_boolean.light_kitchen_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
 - id: turn_on_multiple_fader_booleans_3
   alias: Turn on multiple fader booleans
   description: Turns on specified input booleans when the button is pressed
@@ -475,8 +475,8 @@
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
       - input_boolean.light_window_mid_shelf_wled_is_active
-      - input_boolean.light_kitchen_top_shelf_wled_is_active
-      - input_boolean.light_kitchen_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
 - id: make_the_kitchen_bright_again_2
   alias: Make the Kitchen Bright Again
   description: Sets kitchen lights to full brightness and turns off associated booleans
@@ -754,7 +754,9 @@
     - light.window_top_shelf_wled
     - light.window_mid_shelf_wled
     - light.kitchen_top_shelf_wled
+    - light.kitchen_top_shelf_wled_segment_1
     - light.kitchen_mid_shelf_wled
+    - light.kitchen_mid_shelf_wled_segment_1
     - light.bedroom_overhead
     - light.bedroom_reading
   - service: input_boolean.turn_off
@@ -774,8 +776,8 @@
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
       - input_boolean.light_window_mid_shelf_wled_is_active
-      - input_boolean.light_kitchen_top_shelf_wled_is_active
-      - input_boolean.light_kitchen_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
 - id: run_scripts_after_global_lights_off_time
   alias: Run Scripts After Global Lights Off Time
   trigger:

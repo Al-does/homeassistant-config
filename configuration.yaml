@@ -222,6 +222,18 @@ input_datetime:
     has_time: true
     initial: "12:34:56"
 
+  light_kitchen_top_shelf_wled_segment_1_start_time:
+    name: Kitchen Top Shelf WLED Segment 1 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_top_shelf_wled_segment_1_end_time:
+    name: Kitchen Top Shelf WLED Segment 1 End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
   light_kitchen_mid_shelf_wled_start_time:
     name: Kitchen Mid Shelf WLED Start Time
     has_date: false
@@ -230,6 +242,18 @@ input_datetime:
 
   light_kitchen_mid_shelf_wled_end_time:
     name: Kitchen Mid Shelf WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_mid_shelf_wled_segment_1_start_time:
+    name: Kitchen Mid Shelf WLED Segment 1 Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_mid_shelf_wled_segment_1_end_time:
+    name: Kitchen Mid Shelf WLED Segment 1 End Time
     has_date: false
     has_time: true
     initial: "12:34:56"
@@ -398,7 +422,7 @@ input_number:
 
   light_bar_wled_min_brightness:
     name: Bar WLED Min Brightness
-    initial: 20
+    initial: 5
     min: 0
     max: 255
     step: 1
@@ -412,7 +436,7 @@ input_number:
 
   light_window_top_shelf_wled_min_brightness:
     name: Window Top Shelf WLED Min Brightness
-    initial: 20
+    initial: 40
     min: 0
     max: 255
     step: 1
@@ -426,7 +450,7 @@ input_number:
 
   light_window_mid_shelf_wled_min_brightness:
     name: Window Mid Shelf WLED Min Brightness
-    initial: 20
+    initial: 40
     min: 0
     max: 255
     step: 1
@@ -440,7 +464,21 @@ input_number:
 
   light_kitchen_top_shelf_wled_min_brightness:
     name: Kitchen Top Shelf WLED Min Brightness
-    initial: 20
+    initial: 5
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_top_shelf_wled_segment_1_max_brightness:
+    name: Kitchen Top Shelf WLED Segment 1 Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_top_shelf_wled_segment_1_min_brightness:
+    name: Kitchen Top Shelf WLED Segment 1 Min Brightness
+    initial: 5
     min: 0
     max: 255
     step: 1
@@ -454,7 +492,21 @@ input_number:
 
   light_kitchen_mid_shelf_wled_min_brightness:
     name: Kitchen Mid Shelf WLED Min Brightness
-    initial: 20
+    initial: 5
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_mid_shelf_wled_segment_1_max_brightness:
+    name: Kitchen Mid Shelf WLED Segment 1 Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_mid_shelf_wled_segment_1_min_brightness:
+    name: Kitchen Mid Shelf WLED Segment 1 Min Brightness
+    initial: 5
     min: 0
     max: 255
     step: 1
@@ -580,12 +632,28 @@ input_boolean:
     name: Kitchen Top Shelf WLED needs reset
     initial: false
 
+  light_kitchen_top_shelf_wled_segment_1_is_active:
+    name: Kitchen Top Shelf WLED Segment 1 Active
+    initial: false
+
+  light_kitchen_top_shelf_wled_segment_1_needs_reset:
+    name: Kitchen Top Shelf WLED Segment 1 needs reset
+    initial: false
+
   light_kitchen_mid_shelf_wled_is_active:
     name: Kitchen Mid Shelf WLED Active
     initial: false
 
   light_kitchen_mid_shelf_wled_needs_reset:
     name: Kitchen Mid Shelf WLED needs reset
+    initial: false
+
+  light_kitchen_mid_shelf_wled_segment_1_is_active:
+    name: Kitchen Mid Shelf WLED Segment 1 Active
+    initial: false
+
+  light_kitchen_mid_shelf_wled_segment_1_needs_reset:
+    name: Kitchen Mid Shelf WLED Segment 1 needs reset
     initial: false
 
   fader_booster_is_active:
