@@ -193,26 +193,12 @@ make_kitchen_bright_again:
 
 make_art_room_bright_again:
  alias: "Make the art Room Bright Again"
- description: "Occupancy bright mode: Hue bulbs via Natural light scene (fallback day color temp), non-Hue at max brightness"
+ description: "Occupancy bright mode: Hue bulbs via Natural light scene, non-Hue at max brightness"
  mode: single
  sequence:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: "{{ states('scene.art_room_natural_light') not in ['unknown', 'unavailable'] }}"
-      sequence:
-        - service: scene.turn_on
-          target:
-            entity_id: scene.art_room_natural_light
-    default:
-      - service: light.turn_on
-        target:
-          entity_id:
-            - light.art_room_overhead_lights
-            - light.hue_color_lamp_1_2
-        data:
-          color_temp_kelvin: 5000
-          brightness: 255
+  - service: scene.turn_on
+    target:
+      entity_id: scene.art_room_natural_light
   - repeat:
       for_each:
         - light.urban_outfiters
