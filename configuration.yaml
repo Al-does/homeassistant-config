@@ -162,6 +162,66 @@ input_datetime:
     has_time: true
     initial: "12:34:56"
 
+  light_bar_wled_start_time:
+    name: Bar WLED Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_bar_wled_end_time:
+    name: Bar WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_top_shelf_wled_start_time:
+    name: Window Top Shelf WLED Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_top_shelf_wled_end_time:
+    name: Window Top Shelf WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_mid_shelf_wled_start_time:
+    name: Window Mid Shelf WLED Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_mid_shelf_wled_end_time:
+    name: Window Mid Shelf WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_top_shelf_wled_start_time:
+    name: Kitchen Top Shelf WLED Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_top_shelf_wled_end_time:
+    name: Kitchen Top Shelf WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_mid_shelf_wled_start_time:
+    name: Kitchen Mid Shelf WLED Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_mid_shelf_wled_end_time:
+    name: Kitchen Mid Shelf WLED End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
 input_number:
   light_kitchen_desk_lamp_max_brightness:
     name: Kitchen Desk Lamp Max Brightness
@@ -302,6 +362,76 @@ input_number:
     min: 0
     max: 255
     step: 1
+
+  light_bar_wled_max_brightness:
+    name: Bar WLED Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_bar_wled_min_brightness:
+    name: Bar WLED Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_window_top_shelf_wled_max_brightness:
+    name: Window Top Shelf WLED Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_window_top_shelf_wled_min_brightness:
+    name: Window Top Shelf WLED Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_window_mid_shelf_wled_max_brightness:
+    name: Window Mid Shelf WLED Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_window_mid_shelf_wled_min_brightness:
+    name: Window Mid Shelf WLED Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_top_shelf_wled_max_brightness:
+    name: Kitchen Top Shelf WLED Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_top_shelf_wled_min_brightness:
+    name: Kitchen Top Shelf WLED Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_mid_shelf_wled_max_brightness:
+    name: Kitchen Mid Shelf WLED Max Brightness
+    initial: 179
+    min: 0
+    max: 255
+    step: 1
+
+  light_kitchen_mid_shelf_wled_min_brightness:
+    name: Kitchen Mid Shelf WLED Min Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
     
 input_boolean:
   light_kitchen_desk_lamp_is_active:
@@ -382,6 +512,46 @@ input_boolean:
     
   light_hue_white_lamp_3_needs_reset:
     name: Hue White Lamp 3 needs reset
+    initial: false
+
+  light_bar_wled_is_active:
+    name: Bar WLED Active
+    initial: false
+
+  light_bar_wled_needs_reset:
+    name: Bar WLED needs reset
+    initial: false
+
+  light_window_top_shelf_wled_is_active:
+    name: Window Top Shelf WLED Active
+    initial: false
+
+  light_window_top_shelf_wled_needs_reset:
+    name: Window Top Shelf WLED needs reset
+    initial: false
+
+  light_window_mid_shelf_wled_is_active:
+    name: Window Mid Shelf WLED Active
+    initial: false
+
+  light_window_mid_shelf_wled_needs_reset:
+    name: Window Mid Shelf WLED needs reset
+    initial: false
+
+  light_kitchen_top_shelf_wled_is_active:
+    name: Kitchen Top Shelf WLED Active
+    initial: false
+
+  light_kitchen_top_shelf_wled_needs_reset:
+    name: Kitchen Top Shelf WLED needs reset
+    initial: false
+
+  light_kitchen_mid_shelf_wled_is_active:
+    name: Kitchen Mid Shelf WLED Active
+    initial: false
+
+  light_kitchen_mid_shelf_wled_needs_reset:
+    name: Kitchen Mid Shelf WLED needs reset
     initial: false
 
   fader_booster_is_active:

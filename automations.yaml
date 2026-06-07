@@ -134,6 +134,11 @@
     - input_boolean.light_hue_white_lamp_2_is_active
     - input_boolean.light_hue_white_lamp_3_is_active
     - input_boolean.light_living_room_pendants_is_active
+    - input_boolean.light_bar_wled_is_active
+    - input_boolean.light_window_top_shelf_wled_is_active
+    - input_boolean.light_window_mid_shelf_wled_is_active
+    - input_boolean.light_kitchen_top_shelf_wled_is_active
+    - input_boolean.light_kitchen_mid_shelf_wled_is_active
   - service: input_boolean.turn_off
     entity_id:
     - input_boolean.light_kitchen_desk_lamp_needs_reset
@@ -146,6 +151,11 @@
     - input_boolean.light_hue_white_lamp_2_needs_reset
     - input_boolean.light_hue_white_lamp_3_needs_reset
     - input_boolean.light_living_room_pendants_needs_reset
+    - input_boolean.light_bar_wled_needs_reset
+    - input_boolean.light_window_top_shelf_wled_needs_reset
+    - input_boolean.light_window_mid_shelf_wled_needs_reset
+    - input_boolean.light_kitchen_top_shelf_wled_needs_reset
+    - input_boolean.light_kitchen_mid_shelf_wled_needs_reset
 - id: fade_under_cabinet_lights
   alias: call the UCL adjust_brightness routine every minute
   trigger:
@@ -316,6 +326,91 @@
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
+- id: fade_bar_wled
+  alias: call the Bar WLED adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_bar_wled_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.bar_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_window_top_shelf_wled
+  alias: call the Window Top Shelf WLED adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_window_top_shelf_wled_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.window_top_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_window_mid_shelf_wled
+  alias: call the Window Mid Shelf WLED adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_window_mid_shelf_wled_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.window_mid_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_kitchen_top_shelf_wled
+  alias: call the Kitchen Top Shelf WLED adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_kitchen_top_shelf_wled_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.kitchen_top_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_kitchen_mid_shelf_wled
+  alias: call the Kitchen Mid Shelf WLED adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_kitchen_mid_shelf_wled_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.kitchen_mid_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
 - id: turn_off_multiple_fader_booleans_3
   alias: Turn off multiple fader booleans
   description: Turns off specified input booleans when the button is pressed
@@ -333,6 +428,11 @@
       - input_boolean.light_urban_outfiters_is_active
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
+      - input_boolean.light_bar_wled_is_active
+      - input_boolean.light_window_top_shelf_wled_is_active
+      - input_boolean.light_window_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_is_active
 - id: turn_on_multiple_fader_booleans_3
   alias: Turn on multiple fader booleans
   description: Turns on specified input booleans when the button is pressed
@@ -351,6 +451,11 @@
       - input_boolean.light_urban_outfiters_is_active
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
+      - input_boolean.light_bar_wled_is_active
+      - input_boolean.light_window_top_shelf_wled_is_active
+      - input_boolean.light_window_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_is_active
 - id: make_the_kitchen_bright_again_2
   alias: Make the Kitchen Bright Again
   description: Sets kitchen lights to full brightness and turns off associated booleans
@@ -623,6 +728,11 @@
     - light.kitchen_desk_lamp
     - light.urban_outfiters
     - light.living_room_pendants
+    - light.bar_wled
+    - light.window_top_shelf_wled
+    - light.window_mid_shelf_wled
+    - light.kitchen_top_shelf_wled
+    - light.kitchen_mid_shelf_wled
     - light.bedroom_overhead
     - light.bedroom_reading
   - service: input_boolean.turn_off
@@ -638,6 +748,11 @@
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_kitchen_desk_lamp_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_bar_wled_is_active
+      - input_boolean.light_window_top_shelf_wled_is_active
+      - input_boolean.light_window_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_is_active
 - id: run_scripts_after_global_lights_off_time
   alias: Run Scripts After Global Lights Off Time
   trigger:

@@ -1433,15 +1433,55 @@ reactivate_dining_room_dimmer:
       - input_boolean.light_giraffe_lamp_needs_reset
       - input_boolean.light_kitchen_desk_lamp_needs_reset
       - input_boolean.light_living_room_pendants_needs_reset
+      - input_boolean.light_bar_wled_needs_reset
+      - input_boolean.light_window_top_shelf_wled_needs_reset
+      - input_boolean.light_window_mid_shelf_wled_needs_reset
+      - input_boolean.light_kitchen_top_shelf_wled_needs_reset
+      - input_boolean.light_kitchen_mid_shelf_wled_needs_reset
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_kitchen_desk_lamp_is_active
       - input_boolean.light_living_room_pendants_is_active
+      - input_boolean.light_bar_wled_is_active
+      - input_boolean.light_window_top_shelf_wled_is_active
+      - input_boolean.light_window_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_is_active
   - service: automation.trigger
     data:
      entity_id:
       - automation.fade_giraffe_lamp
       - automation.fade_kitchen_desk_lamp
       - automation.fade_living_room_pendants
+      - automation.fade_bar_wled
+      - automation.fade_window_top_shelf_wled
+      - automation.fade_window_mid_shelf_wled
+      - automation.fade_kitchen_top_shelf_wled
+      - automation.fade_kitchen_mid_shelf_wled
+
+reactivate_wled_dimmer:
+ alias: "Reactivate WLED Dimmer"
+ sequence:
+  - service: input_boolean.turn_on
+    data:
+     entity_id:
+      - input_boolean.light_bar_wled_needs_reset
+      - input_boolean.light_window_top_shelf_wled_needs_reset
+      - input_boolean.light_window_mid_shelf_wled_needs_reset
+      - input_boolean.light_kitchen_top_shelf_wled_needs_reset
+      - input_boolean.light_kitchen_mid_shelf_wled_needs_reset
+      - input_boolean.light_bar_wled_is_active
+      - input_boolean.light_window_top_shelf_wled_is_active
+      - input_boolean.light_window_mid_shelf_wled_is_active
+      - input_boolean.light_kitchen_top_shelf_wled_is_active
+      - input_boolean.light_kitchen_mid_shelf_wled_is_active
+  - service: automation.trigger
+    data:
+     entity_id:
+      - automation.fade_bar_wled
+      - automation.fade_window_top_shelf_wled
+      - automation.fade_window_mid_shelf_wled
+      - automation.fade_kitchen_top_shelf_wled
+      - automation.fade_kitchen_mid_shelf_wled
 
 make_kitchen_bright_again:
  alias: "Make the Kitchen Bright Again"
