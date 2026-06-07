@@ -4,7 +4,10 @@
   trigger:
   - platform: time_pattern
     minutes: /1
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
   - service: python_script.fade_out
     data:
