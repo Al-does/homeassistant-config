@@ -71,7 +71,8 @@ demand.
   `start_fade_in` is the only scheduled path that turns an off light on.
 - Fighting manual changes during fade-in or fade-out. A user turning a light off or
   moving it away from the curve remains authoritative.
-- Color or color-temperature control (brightness only).
+- Full circadian/adaptive lighting. The fader only applies a configured warm Hue
+  color temperature at engagement and on fader-driven Hue `turn_on` commands.
 - Replacing circadian/adaptive lighting.
 - Owning the schedule UI beyond the existing dashboard helpers.
 
@@ -116,6 +117,9 @@ For stem `<f>`:
 - input_boolean.<f>_needs_reset   - snap onto schedule next evaluation.
 - input_number.<f>_max_brightness - ceiling (0-255).
 - input_number.<f>_min_brightness - floor (0-255).
+- input_boolean.<f>_requires_fader_color_temperature - optional opt-in for lights
+  that should receive the fader's warm color temperature when the fader commands
+  them on, and during the fader-start warm-up pass.
 - input_datetime.<f>_fade_in_start_time - fade-in start; sentinel "12:34:56" => use global.
 - input_datetime.<f>_start_time   - window start; sentinel "12:34:56" => use global.
 - input_datetime.<f>_end_time     - window end;   sentinel "12:34:56" => use global.
@@ -126,6 +130,8 @@ For stem `<f>`:
 - input_datetime.global_fader_end_time    (default 22:30:00) - window end fallback.
 - input_datetime.global_lights_off_time   (default 23:40:00) - hard "go dark" time.
 - input_datetime.global_morning_time      (default 05:00:00) - end of overnight-off.
+- input_number.fader_hue_color_temperature_kelvin (default 2000K) - warm Hue
+  target applied to lights that opt in with `<f>_requires_fader_color_temperature`.
 - input_boolean.fader_booster_is_active   - boost mode (see 6.8).
 - input_boolean.fader_retarder_is_active  - reserved; currently unused. Preserve.
 - input_boolean.guest_mode                - when on, engagement automation is skipped.
@@ -259,6 +265,10 @@ recovers automatically (the next minute tick recomputes the absolute target).
 2. At `global_fader_start_time`, if a resident is home and guest_mode is off, the
    engagement automation turns ON `_is_active` for all managed lights and clears
    `_needs_reset` (sets it OFF). It does NOT force a snap to the curve.
+   Companion automation `warm_color_temperature_bulbs_at_fader_start` runs on the
+   same trigger and calls `warm_configured_color_temperature`, which discovers lights whose
+   `<f>_requires_fader_color_temperature` helper is on and sends the configured
+   `color_temp_kelvin` to those that are already on; it does not turn lights on.
    `update_global_fader_start_time_to_sunset` refreshes that helper from the local
    sunset time at HA startup and daily at noon, rounded to minute precision so the
    template trigger can match.
@@ -333,7 +343,11 @@ re-implementation must preserve these contracts (entity names, the meaning of
 `_is_active` / `_needs_reset`, and the room groupings).
 
 - Engagement: `turn_on_lights_boolean` at `global_fader_start_time` (presence + not
-  guest_mode). Must set only `_is_active` (see 7 and 11).
+  guest_mode). Must set only `_is_active` (see 7 and 11) and clear `_needs_reset`.
+- Color temperature warmth: `warm_color_temperature_bulbs_at_fader_start` uses the
+  same trigger and presence / guest-mode gates to call
+  `warm_configured_color_temperature`, which discovers opted-in lights from
+  `<f>_requires_fader_color_temperature`.
 - Per-minute drivers: `fade_<light>` (one per managed light), `time_pattern
   minutes: /1`, gated on `<f>_is_active == on`, calling `python_script.fade_out`
   with `function_name: adjust_brightness`. Because evaluation is gated on

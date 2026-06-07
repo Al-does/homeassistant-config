@@ -379,6 +379,13 @@ input_datetime:
     initial: "12:34:56"
 
 input_number:
+  fader_hue_color_temperature_kelvin:
+    name: Fader Hue Color Temperature Kelvin
+    initial: 2000
+    min: 2000
+    max: 6500
+    step: 50
+
   light_kitchen_desk_lamp_max_brightness:
     name: Kitchen Desk Lamp Max Brightness
     initial: 255
@@ -702,6 +709,10 @@ input_boolean:
     name: Yellow Lamp needs reset
     initial: false
 
+  light_hue_color_lamp_1_2_requires_fader_color_temperature:
+    name: Yellow Lamp Requires Fader Color Temperature
+    initial: true
+
   light_giraffe_lamp_is_active:
     name: Giraffe Lamp Active
     initial: false
@@ -717,6 +728,10 @@ input_boolean:
   light_hue_color_lamp_1_needs_reset:
     name: Al's Lamp needs reset
     initial: false
+
+  light_hue_color_lamp_1_requires_fader_color_temperature:
+    name: Al's Lamp Requires Fader Color Temperature
+    initial: true
     
   light_hue_white_lamp_1_is_active:
     name: Hue White Lamp 1 Active
@@ -725,6 +740,10 @@ input_boolean:
   light_hue_white_lamp_1_needs_reset:
     name: Hue White Lamp 1 needs reset
     initial: false
+
+  light_hue_white_lamp_1_requires_fader_color_temperature:
+    name: Hue White Lamp 1 Requires Fader Color Temperature
+    initial: true
     
   light_hue_white_lamp_2_is_active:
     name: Hue White Lamp 2 Active
@@ -733,6 +752,10 @@ input_boolean:
   light_hue_white_lamp_2_needs_reset:
     name: Hue White Lamp 2 needs reset
     initial: false
+
+  light_hue_white_lamp_2_requires_fader_color_temperature:
+    name: Hue White Lamp 2 Requires Fader Color Temperature
+    initial: true
     
   light_hue_white_lamp_3_is_active:
     name: Hue White Lamp 3 Active
@@ -741,6 +764,10 @@ input_boolean:
   light_hue_white_lamp_3_needs_reset:
     name: Hue White Lamp 3 needs reset
     initial: false
+
+  light_hue_white_lamp_3_requires_fader_color_temperature:
+    name: Hue White Lamp 3 Requires Fader Color Temperature
+    initial: true
 
   light_bar_wled_is_active:
     name: Bar WLED Active

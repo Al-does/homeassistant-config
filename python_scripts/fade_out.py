@@ -3,6 +3,8 @@ FADE_IN_START_GRACE_MINUTES = 2
 MINUTES_PER_DAY = 24 * 60
 SENTINEL_TIME = "12:34:56"
 PEAK_REDUCTION_FACTOR = 2.0 / 3.0
+FADER_COLOR_TEMPERATURE_ENTITY = "input_number.fader_hue_color_temperature_kelvin"
+COLOR_TEMPERATURE_HELPER_SUFFIX = "_requires_fader_color_temperature"
 
 
 def get_state(entity, default=None):
@@ -33,6 +35,32 @@ def clamp_brightness(value):
     if value > 255:
         return 255
     return value
+
+
+def get_fader_color_temperature_kelvin():
+    kelvin = safe_int(get_state(FADER_COLOR_TEMPERATURE_ENTITY), None)
+    if kelvin is None or kelvin <= 0:
+        return None
+    return kelvin
+
+
+def helper_stem(entity_id):
+    return entity_id.replace(".", "_")
+
+
+def entity_id_from_helper_stem(stem):
+    if "_" not in stem:
+        return stem
+    domain, object_id = stem.split("_", 1)
+    return domain + "." + object_id
+
+
+def color_temperature_helper_entity(entity_id):
+    return "input_boolean." + helper_stem(entity_id) + COLOR_TEMPERATURE_HELPER_SUFFIX
+
+
+def requires_fader_color_temperature(entity_id):
+    return get_state(color_temperature_helper_entity(entity_id), "off") == "on"
 
 
 def get_current_brightness(light_state):
@@ -251,9 +279,42 @@ def apply_decision(entity_id, decision, context):
             if brightness is None:
                 logger.error("Cannot convert brightness to int. Entity ID {}, context {}, decision {}".format(entity_id, context, decision))
                 return
-            hass.services.call("light", "turn_on", {"entity_id": entity_id, "brightness": brightness})
+            service_data = {"entity_id": entity_id, "brightness": brightness}
+            kelvin = get_fader_color_temperature_kelvin()
+            if requires_fader_color_temperature(entity_id) and kelvin is not None:
+                service_data["color_temp_kelvin"] = kelvin
+            hass.services.call("light", "turn_on", service_data)
     except Exception as e:
         logger.error("Fader service call failed for {} with decision {}. Error: {}".format(entity_id, decision, str(e)))
+
+
+def warm_configured_color_temperature():
+    kelvin = get_fader_color_temperature_kelvin()
+    if kelvin is None:
+        logger.info("Fader color temperature skipped; {} is not set.".format(FADER_COLOR_TEMPERATURE_ENTITY))
+        return
+
+    for helper_state in hass.states.all():
+        helper_entity_id = helper_state.entity_id
+        if not helper_entity_id.startswith("input_boolean."):
+            continue
+        if not helper_entity_id.endswith(COLOR_TEMPERATURE_HELPER_SUFFIX):
+            continue
+        if helper_state.state != "on":
+            continue
+
+        helper_object_id = helper_entity_id[len("input_boolean."):]
+        light_stem = helper_object_id[:-len(COLOR_TEMPERATURE_HELPER_SUFFIX)]
+        light_entity_id = entity_id_from_helper_stem(light_stem)
+        light_state = hass.states.get(light_entity_id)
+        if light_state is None or light_state.state != "on":
+            continue
+
+        try:
+            hass.services.call("light", "turn_on", {"entity_id": light_entity_id, "color_temp_kelvin": kelvin})
+            logger.info("{} warmed to {}K for fader engagement.".format(light_entity_id, kelvin))
+        except Exception as e:
+            logger.error("Fader color temperature failed for {} at {}K. Error: {}".format(light_entity_id, kelvin, str(e)))
 
 
 def adjust_brightness(entity_id, current_time, sunset_time):
@@ -334,5 +395,7 @@ elif function_name == "adjust_brightness":
     adjust_brightness(entity_id, current_time, sunset_time)
 elif function_name == "start_fade_in":
     start_fade_in(entity_id, current_time)
+elif function_name == "warm_configured_color_temperature":
+    warm_configured_color_temperature()
 else:
     logger.info("Unknown function: {}".format(function_name))
