@@ -664,6 +664,7 @@
     - light.kitchen_mid_shelf_wled_segment_1
     - light.bedroom_overhead
     - light.bedroom_reading
+    - light.master_bathroom_vanity_lights
   - service: input_boolean.turn_off
     data:
       entity_id:
