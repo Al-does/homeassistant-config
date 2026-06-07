@@ -568,8 +568,10 @@
         minutes: 30
         seconds: 0
   mode: single
-- id: restore_lights_when_returning_home A
-  alias: Restore Lights When Returning Home
+- id: first_person_home_lights_on
+  alias: Turn On Lights When First Person Arrives Home
+  description: Reactivate dimmers only when transitioning from nobody home to someone
+    home. A second arrival while someone is already home does nothing.
   trigger:
   - platform: state
     entity_id:
@@ -579,75 +581,17 @@
     to: home
   condition:
   - condition: template
-    value_template: "{{ (is_state('person.alex_vardakostas', 'home') and is_state('person.anna_tong',
-      'not_home')) or\n   (is_state('person.alex_vardakostas', 'not_home') and is_state('person.anna_tong',
-      'home')) }}\n"
-  - condition: template
-    value_template: '{{ now().time() > (state_attr(''sun.sun'', ''next_setting'')
-      - timedelta(hours=1)).time() }}
-
-      '
-  - condition: template
-    value_template: '{{ now().time() < states(''input_datetime.global_fader_start_time'')
-      }}
-
-      '
+    value_template: '{{ (states(''person.alex_vardakostas'') == ''home'') | int +
+      (states(''person.anna_tong'') == ''home'') | int == 1 }}'
   action:
-  - service: light.turn_on
-    data_template:
-      entity_id:
-      - light.under_cabinet_lights
-      - light.dimmable_light_1
-      - light.hue_white_lamp_1
-      - light.bookshelf_lights
-      - light.giraffe_lamp
-      - light.kitchen_desk_lamp
-      - light.urban_outfiters
-      brightness: "{% set entity_id = trigger.to_state.entity_id %} {% if entity_id
-        == 'person.name1' or entity_id == 'person.name2' %}\n  {{ state_attr('input_number.light_'
-        + entity_id.split('.')[1] + '_max_brightness', 'state') | int }}\n{% else
-        %}\n  255\n{% endif %}\n"
-  - service: input_boolean.turn_on
-    data:
-      entity_id:
-      - input_boolean.light_under_cabinet_lights_is_active
-      - input_boolean.light_dimmable_light_1_is_active
-      - input_boolean.light_hue_white_lamp_1_is_active
-      - input_boolean.light_bookshelf_lights_is_active
-      - input_boolean.light_giraffe_lamp_is_active
-      - input_boolean.light_kitchen_desk_lamp_is_active
-      - input_boolean.light_urban_outfiters_is_active
-- id: restore_lights_when_returning_home B
-  alias: Reactivate Dimmers on Arrival
-  trigger:
-  - platform: state
-    entity_id:
-    - person.name1
-    - person.name2
-    from: not_home
-    to: home
-  condition:
-  - condition: state
-    entity_id: input_boolean.guest_mode
-    state: 'off'
-  - condition: template
-    value_template: "{% set start_time = states('input_datetime.global_fader_start_time')
-      %} {% set end_time = states('input_datetime.global_lights_off_time') %} {% set
-      current_time = now().strftime('%H:%M:%S') %} {% if start_time < end_time %}\n
-      \ {{ start_time <= current_time <= end_time }}\n{% else %}\n  {{ current_time
-      >= start_time or current_time <= end_time }}\n{% endif %}\n"
-  - condition: template
-    value_template: '{{ states(''person.name1'') == ''home'' and states(''person.name2'')
-      == ''home'' }}
-
-      '
-  action:
-  - service: script.reactivate_art_room_dimmer
-  - service: script.reactivate_kitchen_dimmer
-  - service: script.reactivate_dining_room_dimmer
+  - service: script.reactivate_all_dimmers
+    metadata: {}
+    data: {}
   mode: single
 - id: turn_off_lights_when_no_one_is_home
   alias: Turn Off Lights When No One is Home
+  description: Turn off lights only when transitioning from someone home to nobody
+    home. One person leaving while another remains does nothing.
   trigger:
   - platform: state
     entity_id:
@@ -749,60 +693,6 @@
     state: 'off'
   action:
   - service: script.reactivate_art_room_dimmer
-    data: {}
-  mode: single
-- id: '1725075939161'
-  alias: Turn on Lights When Alex Comes Home
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.alex_vardakostas
-    zone: zone.home
-    event: enter
-  condition:
-  - condition: state
-    entity_id: person.anna_tong
-    state: not_home
-  action:
-  - service: script.reactivate_all_dimmers
-    metadata: {}
-    data: {}
-  mode: single
-- id: '1725075992111'
-  alias: Turn on Lights When Anna Comes Home
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.anna_tong
-    zone: zone.home
-    event: enter
-  condition:
-  - condition: state
-    entity_id: person.alex_vardakostas
-    state: not_home
-  action:
-  - service: script.reactivate_all_dimmers
-    metadata: {}
-    data: {}
-  mode: single
-- id: '1725076327782'
-  alias: Turn on Lights When Annex Comes Home
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - person.alex_vardakostas
-    from: not_home
-    to: home
-  - platform: state
-    entity_id:
-    - person.anna_tong
-    from: not_home
-    to: home
-  condition: []
-  action:
-  - service: script.reactivate_all_dimmers
-    metadata: {}
     data: {}
   mode: single
 - id: '1725173419667'
