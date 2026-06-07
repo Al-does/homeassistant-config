@@ -801,6 +801,10 @@ input_boolean:
   fader_booster_is_active:
     name: Fader Booster Is Active
     initial: false
+
+  fader_peak_reducer_is_active:
+    name: Fader Peak Reducer Is Active
+    initial: false
     
   fader_retarder_is_active:
     name: Fader Retarder Is Active

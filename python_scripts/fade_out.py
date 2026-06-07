@@ -2,6 +2,7 @@ DEADBAND = 26
 FADE_IN_START_GRACE_MINUTES = 2
 MINUTES_PER_DAY = 24 * 60
 SENTINEL_TIME = "12:34:56"
+PEAK_REDUCTION_FACTOR = 2.0 / 3.0
 
 
 def get_state(entity, default=None):
@@ -85,7 +86,11 @@ def resolve_timeline(current_time, fade_in_start_time, start_time, end_time):
     return current_minutes, fade_in_start_minutes, start_minutes, end_minutes, lights_off_minutes, morning_minutes
 
 
-def boosted_target(target, min_brightness, booster_is_active):
+def cap_target(target, max_brightness):
+    return min(clamp_brightness(target), max_brightness)
+
+
+def boosted_target(target, min_brightness, booster_is_active, max_brightness):
     if booster_is_active:
         effective_min = min_brightness
         if effective_min > 0:
@@ -93,8 +98,14 @@ def boosted_target(target, min_brightness, booster_is_active):
         boosted = target * 1.2
         if effective_min > 0 and boosted < effective_min:
             boosted = effective_min
-        return clamp_brightness(boosted)
-    return clamp_brightness(target)
+        return cap_target(boosted, max_brightness)
+    return cap_target(target, max_brightness)
+
+
+def effective_max_brightness(max_brightness):
+    if get_state("input_boolean.fader_peak_reducer_is_active", "off") == "on":
+        return clamp_brightness(max_brightness * PEAK_REDUCTION_FACTOR)
+    return max_brightness
 
 
 def calculate_target(current_time, fade_in_start_time, start_time, end_time, max_brightness, min_brightness):
@@ -103,6 +114,7 @@ def calculate_target(current_time, fade_in_start_time, start_time, end_time, max
     booster_is_active = get_state("input_boolean.fader_booster_is_active", "off") == "on"
     # Hook retained for the existing helper; the retarder is intentionally unused.
     fader_retarder_is_active = get_state("input_boolean.fader_retarder_is_active", "off") == "on"
+    max_brightness = effective_max_brightness(max_brightness)
 
     effective_min = min_brightness
     if booster_is_active and effective_min > 0:
@@ -136,15 +148,15 @@ def calculate_target(current_time, fade_in_start_time, start_time, end_time, max
         progress = (current_minutes - start_minutes) / total_minutes
         eased = cubic_ease_in_out(progress)
         target = max_brightness - ((max_brightness - effective_min) * eased)
-        return {"period": "window", "target": boosted_target(target, effective_min, booster_is_active), "reason": "curve"}
+        return {"period": "window", "target": boosted_target(target, effective_min, booster_is_active, max_brightness), "reason": "curve"}
 
     if end_minutes < current_minutes <= lights_off_minutes:
         target = effective_min
-        return {"period": "post_fade", "target": boosted_target(target, effective_min, booster_is_active), "reason": "floor"}
+        return {"period": "post_fade", "target": boosted_target(target, effective_min, booster_is_active, max_brightness), "reason": "floor"}
 
     if lights_off_minutes < current_minutes < morning_minutes:
         if booster_is_active and effective_min > 0:
-            return {"period": "overnight", "target": clamp_brightness(effective_min / 2), "reason": "overnight_boost"}
+            return {"period": "overnight", "target": cap_target(effective_min / 2, max_brightness), "reason": "overnight_boost"}
         return {"period": "overnight", "target": 0, "reason": "overnight_off"}
 
     return {"period": "daytime", "target": None, "reason": "passive"}
