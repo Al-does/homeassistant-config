@@ -1452,11 +1452,11 @@ reactivate_dining_room_dimmer:
       - automation.fade_giraffe_lamp
       - automation.fade_kitchen_desk_lamp
       - automation.fade_living_room_pendants
-      - automation.fade_bar_wled
-      - automation.fade_window_top_shelf_wled
-      - automation.fade_window_mid_shelf_wled
-      - automation.fade_kitchen_top_shelf_wled
-      - automation.fade_kitchen_mid_shelf_wled
+      - automation.call_the_bar_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_window_top_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_window_mid_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_kitchen_top_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_kitchen_mid_shelf_wled_adjust_brightness_routine_every_minute
 
 reactivate_wled_dimmer:
  alias: "Reactivate WLED Dimmer"
@@ -1477,11 +1477,11 @@ reactivate_wled_dimmer:
   - service: automation.trigger
     data:
      entity_id:
-      - automation.fade_bar_wled
-      - automation.fade_window_top_shelf_wled
-      - automation.fade_window_mid_shelf_wled
-      - automation.fade_kitchen_top_shelf_wled
-      - automation.fade_kitchen_mid_shelf_wled
+      - automation.call_the_bar_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_window_top_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_window_mid_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_kitchen_top_shelf_wled_adjust_brightness_routine_every_minute
+      - automation.call_the_kitchen_mid_shelf_wled_adjust_brightness_routine_every_minute
 
 make_kitchen_bright_again:
  alias: "Make the Kitchen Bright Again"

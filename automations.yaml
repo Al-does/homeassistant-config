@@ -130,6 +130,7 @@
     - input_boolean.light_dimmable_light_1_is_active
     - input_boolean.light_urban_outfiters_is_active
     - input_boolean.light_giraffe_lamp_is_active
+    - input_boolean.light_hue_color_lamp_1_is_active
     - input_boolean.light_hue_white_lamp_1_is_active
     - input_boolean.light_hue_white_lamp_2_is_active
     - input_boolean.light_hue_white_lamp_3_is_active
@@ -147,6 +148,7 @@
     - input_boolean.light_dimmable_light_1_needs_reset
     - input_boolean.light_urban_outfiters_needs_reset
     - input_boolean.light_giraffe_lamp_needs_reset
+    - input_boolean.light_hue_color_lamp_1_needs_reset
     - input_boolean.light_hue_white_lamp_1_needs_reset
     - input_boolean.light_hue_white_lamp_2_needs_reset
     - input_boolean.light_hue_white_lamp_3_needs_reset
@@ -255,6 +257,23 @@
     data:
       function_name: adjust_brightness
       entity_id: light.giraffe_lamp
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_hue_color_lamp_1
+  alias: call the Al's Lamp adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_hue_color_lamp_1_is_active
+    state: 'on'
+  action:
+  - service: python_script.hello_world
+    data:
+      function_name: adjust_brightness
+      entity_id: light.hue_color_lamp_1
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
@@ -427,6 +446,7 @@
       - input_boolean.light_dimmable_light_1_is_active
       - input_boolean.light_urban_outfiters_is_active
       - input_boolean.light_giraffe_lamp_is_active
+      - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
@@ -450,6 +470,7 @@
       - input_boolean.light_dimmable_light_1_is_active
       - input_boolean.light_urban_outfiters_is_active
       - input_boolean.light_giraffe_lamp_is_active
+      - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
@@ -725,6 +746,7 @@
     - light.hue_white_lamp_3
     - light.bookshelf_lights
     - light.giraffe_lamp
+    - light.hue_color_lamp_1
     - light.kitchen_desk_lamp
     - light.urban_outfiters
     - light.living_room_pendants
@@ -746,6 +768,7 @@
       - input_boolean.light_living_room_pendants_is_active
       - input_boolean.light_bookshelf_lights_is_active
       - input_boolean.light_giraffe_lamp_is_active
+      - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_kitchen_desk_lamp_is_active
       - input_boolean.light_urban_outfiters_is_active
       - input_boolean.light_bar_wled_is_active

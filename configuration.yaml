@@ -114,6 +114,18 @@ input_datetime:
     has_time: true
     initial: "12:34:56"
 
+  light_hue_color_lamp_1_start_time:
+    name: Al's Lamp Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_color_lamp_1_end_time:
+    name: Al's Lamp End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
   light_hue_white_lamp_1_start_time:
     name: Hue White Lamp 1 Start Time
     has_date: false
@@ -307,6 +319,20 @@ input_number:
     max: 255
     step: 1
 
+  light_hue_color_lamp_1_max_brightness:
+    name: Al's Lamp Max Brightness
+    initial: 128
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_color_lamp_1_min_brightness:
+    name: Al's Lamp Min Brightness
+    initial: 26
+    min: 0
+    max: 255
+    step: 1
+
   light_hue_white_lamp_1_max_brightness:
     name: Hue White Lamp 1 Max Brightness
     initial: 250
@@ -372,7 +398,7 @@ input_number:
 
   light_bar_wled_min_brightness:
     name: Bar WLED Min Brightness
-    initial: 0
+    initial: 20
     min: 0
     max: 255
     step: 1
@@ -386,7 +412,7 @@ input_number:
 
   light_window_top_shelf_wled_min_brightness:
     name: Window Top Shelf WLED Min Brightness
-    initial: 0
+    initial: 20
     min: 0
     max: 255
     step: 1
@@ -400,7 +426,7 @@ input_number:
 
   light_window_mid_shelf_wled_min_brightness:
     name: Window Mid Shelf WLED Min Brightness
-    initial: 0
+    initial: 20
     min: 0
     max: 255
     step: 1
@@ -414,7 +440,7 @@ input_number:
 
   light_kitchen_top_shelf_wled_min_brightness:
     name: Kitchen Top Shelf WLED Min Brightness
-    initial: 0
+    initial: 20
     min: 0
     max: 255
     step: 1
@@ -428,7 +454,7 @@ input_number:
 
   light_kitchen_mid_shelf_wled_min_brightness:
     name: Kitchen Mid Shelf WLED Min Brightness
-    initial: 0
+    initial: 20
     min: 0
     max: 255
     step: 1
@@ -488,6 +514,14 @@ input_boolean:
     
   light_giraffe_lamp_needs_reset:
     name: Giraffe Lamp needs reset
+    initial: false
+
+  light_hue_color_lamp_1_is_active:
+    name: Al's Lamp Active
+    initial: false
+
+  light_hue_color_lamp_1_needs_reset:
+    name: Al's Lamp needs reset
     initial: false
     
   light_hue_white_lamp_1_is_active:
