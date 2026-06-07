@@ -88,6 +88,21 @@ reactivate_art_room_dimmer:
       - automation.fade_bookshelf_lights
       - automation.fade_urban_outfiters
       - automation.fade_hue_color_lamp_1_2
+
+disengage_art_room_fader:
+ alias: "Disengage Art Room Fader"
+ description: "Stops the fader from controlling art room lights without changing their current state."
+ sequence:
+  - service: input_boolean.turn_off
+    target:
+     entity_id:
+      - input_boolean.light_bookshelf_lights_is_active
+      - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
+      - input_boolean.light_bookshelf_lights_needs_reset
+      - input_boolean.light_urban_outfiters_needs_reset
+      - input_boolean.light_hue_color_lamp_1_2_needs_reset
+ mode: single
       
 reactivate_dining_room_dimmer:
  alias: "Reactivate Dining Room Dimmer"
