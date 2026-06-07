@@ -11,8 +11,8 @@ is dormant -- and the Fader must never fight them. A per-room "Reset to Schedule
 control lets users hand a light (or room) back to the Fader on demand.
 
 ## 2. Where this lives (current implementation = source of truth)
-- Engine: `homeassistant-config/python_scripts/hello_world.py`. It is a Home
-  Assistant `python_script`, invoked via the `python_script.hello_world` service
+- Engine: `homeassistant-config/python_scripts/fade_out.py`. It is a Home
+  Assistant `python_script`, invoked via the `python_script.fade_out` service
   with `data: { function_name: "adjust_brightness", entity_id, current_time,
   sunset_time }`. A `function_name` dispatcher is at the bottom of the file.
 - Per-light drivers: automations named `fade_<light>` (in `automations.yaml`) fire
@@ -40,7 +40,7 @@ control lets users hand a light (or room) back to the Fader on demand.
 ### Stale code to ignore / remove
 - `homeassistant-config/custom_components/lightprofilerestorer/` is an older,
   unused OOP reimplementation (services `start_dimming`, `deactivate_fader`, etc.).
-  It is NOT wired into the live system. Treat `hello_world.py` as canonical; the
+  It is NOT wired into the live system. Treat `fade_out.py` as canonical; the
   component may be deleted.
 - The `adaptive_lighting` custom component has been deleted; do not reintroduce a
   dependency on it. (If a config entry remains on the live instance, it should be
@@ -311,7 +311,7 @@ re-implementation must preserve these contracts (entity names, the meaning of
 - Engagement: `turn_on_lights_boolean` at `global_fader_start_time` (presence + not
   guest_mode). Must set only `_is_active` (see 7 and 11).
 - Per-minute drivers: `fade_<light>` (one per managed light), `time_pattern
-  minutes: /1`, gated on `<f>_is_active == on`, calling `python_script.hello_world`
+  minutes: /1`, gated on `<f>_is_active == on`, calling `python_script.fade_out`
   with `function_name: adjust_brightness`. Because evaluation is gated on
   `_is_active`, that flag must stay on through manual dims (see 6.7, CRITICAL).
 - Reset-to-Schedule: scripts `reactivate_kitchen_dimmer`,
@@ -380,7 +380,7 @@ re-implementation must preserve these contracts (entity names, the meaning of
   brightness contracts, so confirm intended behavior before relying on them.
 
 ## 14. Implementation and live validation notes
-- Implemented on 2026-06-06 in `python_scripts/hello_world.py` and
+- Implemented on 2026-06-06 in `python_scripts/fade_out.py` and
   `automations.yaml`: the engine now returns explicit command/hold/off decisions,
   manual deviations HOLD without turning `_is_active` off, and target `0` maps to
   `light.turn_off`.

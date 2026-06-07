@@ -183,7 +183,7 @@
     entity_id: input_boolean.light_under_cabinet_lights_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.under_cabinet_lights
@@ -200,7 +200,7 @@
     entity_id: input_boolean.light_kitchen_desk_lamp_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.kitchen_desk_lamp
@@ -217,7 +217,7 @@
     entity_id: input_boolean.light_bookshelf_lights_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.bookshelf_lights
@@ -234,7 +234,7 @@
     entity_id: input_boolean.light_dimmable_light_1_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.dimmable_light_1
@@ -251,7 +251,7 @@
     entity_id: input_boolean.light_urban_outfiters_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.urban_outfiters
@@ -268,7 +268,7 @@
     entity_id: input_boolean.light_giraffe_lamp_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.giraffe_lamp
@@ -285,7 +285,7 @@
     entity_id: input_boolean.light_hue_color_lamp_1_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.hue_color_lamp_1
@@ -302,7 +302,7 @@
     entity_id: input_boolean.light_living_room_pendants_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.living_room_pendants
@@ -319,7 +319,7 @@
     entity_id: input_boolean.light_hue_white_lamp_1_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.hue_white_lamp_1
@@ -336,7 +336,7 @@
     entity_id: input_boolean.light_hue_white_lamp_2_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.hue_white_lamp_2
@@ -353,7 +353,7 @@
     entity_id: input_boolean.light_hue_white_lamp_3_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.hue_white_lamp_3
@@ -370,7 +370,7 @@
     entity_id: input_boolean.light_bar_wled_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.bar_wled
@@ -387,7 +387,7 @@
     entity_id: input_boolean.light_window_top_shelf_wled_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.window_top_shelf_wled
@@ -404,7 +404,7 @@
     entity_id: input_boolean.light_window_mid_shelf_wled_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.window_mid_shelf_wled
@@ -421,7 +421,7 @@
     entity_id: input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.kitchen_top_shelf_wled_segment_1
@@ -438,7 +438,7 @@
     entity_id: input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
     state: 'on'
   action:
-  - service: python_script.hello_world
+  - service: python_script.fade_out
     data:
       function_name: adjust_brightness
       entity_id: light.kitchen_mid_shelf_wled_segment_1
