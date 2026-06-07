@@ -3,9 +3,6 @@ views:
   - title: The Circle
     path: the-circle
     cards:
-      - type: markdown
-        content: |
-          Adjust the three global times that drive the evening light fade script.
       - type: entities
         title: Fade Schedule
         show_header_toggle: false
@@ -13,9 +10,22 @@ views:
           - entity: input_datetime.global_fader_start_time
           - entity: input_datetime.global_fader_end_time
           - entity: input_datetime.global_lights_off_time
-      - type: markdown
-        content: |
-          Reset a room's lights so the fader recalculates brightness on the next fade cycle.
+      - type: horizontal-stack
+        cards:
+          - type: button
+            entity: switch.sengled_switch_2_switch
+            name: Boob Lamp
+            icon: mdi:lamp
+            show_state: true
+            tap_action:
+              action: toggle
+          - type: button
+            entity: switch.sauna_lights_third_reality_2_switch
+            name: Sauna Lights
+            icon: mdi:ceiling-light
+            show_state: true
+            tap_action:
+              action: toggle
       - type: horizontal-stack
         cards:
           - type: button
