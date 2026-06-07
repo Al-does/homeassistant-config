@@ -137,10 +137,10 @@ def decide_action(entity_id, light_state, current_brightness, target_info, needs
     period = target_info["period"]
 
     if needs_reset == "on":
-        if period == "window" and target is not None:
+        if period in ("window", "post_fade") and target is not None:
             if target <= 0:
-                return {"action": "turn_off", "brightness": 0, "reason": "reset_window_zero"}
-            return {"action": "turn_on", "brightness": target, "reason": "reset_window"}
+                return {"action": "turn_off", "brightness": 0, "reason": "reset_target_zero"}
+            return {"action": "turn_on", "brightness": target, "reason": "reset_to_schedule"}
         return {"action": "turn_off", "brightness": 0, "reason": "reset_outside_window"}
 
     if target is None:

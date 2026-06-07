@@ -1446,11 +1446,6 @@ reactivate_dining_room_dimmer:
       - input_boolean.light_window_mid_shelf_wled_is_active
       - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
       - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
-  - service: light.turn_off
-    target:
-     entity_id:
-      - light.kitchen_top_shelf_wled
-      - light.kitchen_mid_shelf_wled
   - service: automation.trigger
     data:
      entity_id:
@@ -1479,11 +1474,6 @@ reactivate_wled_dimmer:
       - input_boolean.light_window_mid_shelf_wled_is_active
       - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
       - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
-  - service: light.turn_off
-    target:
-     entity_id:
-      - light.kitchen_top_shelf_wled
-      - light.kitchen_mid_shelf_wled
   - service: automation.trigger
     data:
      entity_id:

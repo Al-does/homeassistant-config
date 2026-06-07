@@ -113,9 +113,9 @@ For stem `<f>`:
 - input_datetime.<f>_end_time     - window end;   sentinel "12:34:56" => use global.
 
 ### 6.3 Global helper entities
-- input_datetime.global_fader_start_time  (default 21:30:00) - window start fallback.
-- input_datetime.global_fader_end_time    (default 23:40:00) - window end fallback.
-- input_datetime.global_lights_off_time   (default 01:05:00) - hard "go dark" time.
+- input_datetime.global_fader_start_time  (daily local sunset) - window start fallback.
+- input_datetime.global_fader_end_time    (default 22:30:00) - window end fallback.
+- input_datetime.global_lights_off_time   (default 23:40:00) - hard "go dark" time.
 - input_datetime.global_morning_time      (default 05:00:00) - end of overnight-off.
 - input_boolean.fader_booster_is_active   - boost mode (see 6.8).
 - input_boolean.fader_retarder_is_active  - reserved; currently unused. Preserve.
@@ -216,9 +216,10 @@ issue `brightness: 0`.
   automations so evaluation happens immediately rather than on the next minute tick.
 - On evaluation with `needs_reset == on`: clear `needs_reset`, ensure `is_active`,
   and apply `desired_state(now)`:
-    - in window      -> ON at the curve target (snaps onto curve; this MAY raise the
-      light because it is an explicit user request).
-    - out of window  -> OFF.
+    - fade window       -> ON at the curve target (snaps onto curve; this MAY raise
+      the light because it is an explicit user request).
+    - post-fade floor   -> ON at the configured floor, or OFF when the floor is 0.
+    - overnight/daytime -> OFF.
 - Room groups (from existing scripts; preserve membership):
   - Kitchen:     under_cabinet_lights, dimmable_light_1, hue_white_lamp_1/2/3
   - Art Room:    bookshelf_lights, urban_outfiters
@@ -234,6 +235,9 @@ recovers automatically (the next minute tick recomputes the absolute target).
 1. At `global_fader_start_time`, if a resident is home and guest_mode is off, the
    engagement automation turns ON `_is_active` for all managed lights and clears
    `_needs_reset` (sets it OFF). It does NOT force a snap to the curve.
+   `update_global_fader_start_time_to_sunset` refreshes that helper from the local
+   sunset time at HA startup and daily at noon, rounded to minute precision so the
+   template trigger can match.
 2. Each minute, `fade_<light>` evaluates lights whose `_is_active` is on, applying
    the three-way per-tick decision (6.5): command when on the curve (case 1), hold
    when dimmer (case 2) or brighter (case 3) than the curve, never brighten, and
@@ -242,8 +246,8 @@ recovers automatically (the next minute tick recomputes the absolute target).
    manual DIM holds (case 2) and auto-resumes when the curve catches down. Neither
    turns `_is_active` off and neither stores a flag -- both are derived each tick.
 4. Reset (per-light/room) sets `_needs_reset`; the next evaluation clears it and
-   snaps the light to `desired_state(now)` (in-window -> curve target, which MAY
-   raise the light because it is an explicit user request; out-of-window -> OFF).
+   snaps the light to `desired_state(now)` (fade window -> curve target, post-fade
+   -> configured floor, overnight/daytime -> OFF).
 5. After `global_lights_off_time`, lights go OFF (overnight). After
    `global_morning_time`, the Fader is passive again until the next start.
 
@@ -339,11 +343,11 @@ re-implementation must preserve these contracts (entity names, the meaning of
     reactivate (reset) scripts.
 - Schedule-boundary re-assertion: `run_scripts_after_global_lights_off_time` fires
   the reactivate (reset) scripts ~60s after lights-off, forcing overnight
-  conformance. This depends on out-of-window Reset -> OFF (6.6, 6.9). NOTE:
+  conformance. This depends on overnight Reset -> OFF (6.6, 6.9). NOTE:
   `run_scripts_after_global_fader_end_time` was referenced in earlier design notes
   but is not currently defined in `automations.yaml`.
 - Daytime presence reset: `Light Off Art Room if Unoccupied` calls
-  `reactivate_art_room_dimmer` during the day. This RELIES on out-of-window Reset
+  `reactivate_art_room_dimmer` during the day. This RELIES on daytime Reset
   resolving to OFF (6.9 / scenario 9.C); if that behavior changes, this breaks.
 
 ### Relationship to the sunset "Fade In" automations (handoff, not Fader)
@@ -387,7 +391,7 @@ re-implementation must preserve these contracts (entity names, the meaning of
     `_needs_reset`.
   - Manual dim on `light.under_cabinet_lights` held below the curve, then resumed
     when the synthetic curve caught down.
-  - Out-of-window Reset on `light.giraffe_lamp` turned the light off.
+  - Overnight Reset on `light.giraffe_lamp` turned the light off.
   - Temporary floor-zero on `light.giraffe_lamp` turned the light off cleanly, then
     the floor was restored to `1`.
   - Synthetic start-time handoff on a dimmed `light.giraffe_lamp` did not brighten

@@ -158,6 +158,21 @@
     - input_boolean.light_window_mid_shelf_wled_needs_reset
     - input_boolean.light_kitchen_top_shelf_wled_segment_1_needs_reset
     - input_boolean.light_kitchen_mid_shelf_wled_segment_1_needs_reset
+- id: update_global_fader_start_time_to_sunset
+  alias: Update Global Fader Start Time to Sunset
+  description: Keep the dashboard start-time helper aligned with the local sunset time.
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time
+    at: '12:00:00'
+  action:
+  - service: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.global_fader_start_time
+    data:
+      time: '{{ as_timestamp(state_attr(''sun.sun'', ''next_setting'')) | timestamp_custom(''%H:%M:00'', true) }}'
+  mode: single
 - id: fade_under_cabinet_lights
   alias: call the UCL adjust_brightness routine every minute
   trigger:
