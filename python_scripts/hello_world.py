@@ -1,159 +1,223 @@
-def calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time):
-    # Helper function to convert time string to minutes
-    def time_to_minutes(time_str):
-        h, m, s = time_str.split(':')
-        return int(h) * 60 + int(m) + int(s) / 60
+DEADBAND = 26
+MINUTES_PER_DAY = 24 * 60
+SENTINEL_TIME = "12:34:56"
 
-    # Convert times to minutes
+
+def get_state(entity, default=None):
+    state = hass.states.get(entity)
+    if state is None:
+        return default
+    if state.state in ("unknown", "unavailable", None):
+        return default
+    return state.state
+
+
+def time_to_minutes(time_str):
+    h, m, s = time_str.split(":")
+    return int(h) * 60 + int(m) + int(s) / 60
+
+
+def safe_int(value, default=None):
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def clamp_brightness(value):
+    value = int(value + 0.5)
+    if value < 0:
+        return 0
+    if value > 255:
+        return 255
+    return value
+
+
+def get_current_brightness(light_state):
+    if light_state is None or light_state.state != "on":
+        return 0
+
+    brightness = light_state.attributes.get("brightness")
+    current_brightness = safe_int(brightness, 0)
+    if current_brightness is None:
+        return 0
+    return max(0, min(255, current_brightness))
+
+
+def cubic_ease_in_out(t):
+    if t < 0.5:
+        return 4 * t * t * t
+    return 1 - (-2 * t + 2) ** 3 / 2
+
+
+def normalize_anchor(minutes, morning_minutes):
+    if minutes < morning_minutes:
+        return minutes + MINUTES_PER_DAY
+    return minutes
+
+
+def resolve_timeline(current_time, start_time, end_time):
+    global_lights_off_time = get_state("input_datetime.global_lights_off_time")
+    global_morning_time = get_state("input_datetime.global_morning_time")
+
     current_minutes = time_to_minutes(current_time)
     start_minutes = time_to_minutes(start_time)
     end_minutes = time_to_minutes(end_time)
-    sunset_minutes = time_to_minutes(sunset_time)
-    
-    # Convert global times to minutes
-    global_lights_off_time = hass.states.get("input_datetime.global_lights_off_time").state
-    global_morning_time = hass.states.get("input_datetime.global_morning_time").state
-    global_lights_off_minutes = time_to_minutes(global_lights_off_time)
-    global_morning_minutes = time_to_minutes(global_morning_time)
+    lights_off_minutes = time_to_minutes(global_lights_off_time)
+    morning_minutes = time_to_minutes(global_morning_time)
 
-    # Convert brightness values to integers
-    max_brightness = int(float(max_brightness))
-    min_brightness = int(float(min_brightness))
-    
-    # Get the light's current brightness
-    light_state = hass.states.get(entity_id)
-    if light_state and 'brightness' in light_state.attributes:
-        current_brightness = light_state.attributes['brightness']
-        if current_brightness is None:
-            current_brightness = 0
-    else:
-        current_brightness = 0  # Light is off or brightness attribute is not available
-    
-    # Adjust for wrap-around times
-    if 0 <= global_lights_off_minutes < global_morning_minutes:
-        global_lights_off_minutes += 24 * 60
-    if 0 <= end_minutes < global_morning_minutes:
-        end_minutes += 24 * 60
-    if 0 <= current_minutes < global_morning_minutes:
-        current_minutes += 24 * 60
-    global_morning_minutes += 24 * 60
+    current_minutes = normalize_anchor(current_minutes, morning_minutes)
+    start_minutes = normalize_anchor(start_minutes, morning_minutes)
+    end_minutes = normalize_anchor(end_minutes, morning_minutes)
+    lights_off_minutes = normalize_anchor(lights_off_minutes, morning_minutes)
+    morning_minutes = morning_minutes + MINUTES_PER_DAY
 
-    # Cubic easing function
-    def cubic_ease_in_out(t):
-        if t < 0.5:
-            return 4 * t * t * t
-        else:
-            return 1 - (-2 * t + 2) ** 3 / 2
-    
-    # Check if we need to boost brightness
-    fader_booster_is_active = hass.states.get("input_boolean.fader_booster_is_active").state
-    if fader_booster_is_active == "on":
-        fader_boost = 1.2
-        if min_brightness > 0:
-            min_brightness = max(min_brightness, 20)
-    else:
-        fader_boost = 1
-        
-    #check if we need to reset the light to the calculated path
-    needs_reset_entity = "input_boolean." + formated_entity_id + "_needs_reset"
-    needs_reset = hass.states.get(needs_reset_entity).state
-        
-    # Determine brightness based on the time conditions
+    if end_minutes < start_minutes:
+        end_minutes += MINUTES_PER_DAY
+    if lights_off_minutes < end_minutes:
+        lights_off_minutes += MINUTES_PER_DAY
+    if morning_minutes < lights_off_minutes:
+        morning_minutes += MINUTES_PER_DAY
+
+    return current_minutes, start_minutes, end_minutes, lights_off_minutes, morning_minutes
+
+
+def boosted_target(target, min_brightness, booster_is_active):
+    if booster_is_active:
+        effective_min = min_brightness
+        if effective_min > 0:
+            effective_min = max(effective_min, 20)
+        boosted = target * 1.2
+        if effective_min > 0 and boosted < effective_min:
+            boosted = effective_min
+        return clamp_brightness(boosted)
+    return clamp_brightness(target)
+
+
+def calculate_target(current_time, start_time, end_time, max_brightness, min_brightness):
+    current_minutes, start_minutes, end_minutes, lights_off_minutes, morning_minutes = resolve_timeline(current_time, start_time, end_time)
+
+    booster_is_active = get_state("input_boolean.fader_booster_is_active", "off") == "on"
+    # Hook retained for the existing helper; the retarder is intentionally unused.
+    fader_retarder_is_active = get_state("input_boolean.fader_retarder_is_active", "off") == "on"
+
+    effective_min = min_brightness
+    if booster_is_active and effective_min > 0:
+        effective_min = max(effective_min, 20)
+
     if start_minutes <= current_minutes <= end_minutes:
+        if max_brightness <= min_brightness:
+            if min_brightness == 0:
+                return {"period": "window", "target": 0, "reason": "max_not_above_min_zero"}
+            return {"period": "window", "target": None, "reason": "max_not_above_min"}
+
         total_minutes = end_minutes - start_minutes
-        elapsed_minutes = current_minutes - start_minutes
-        
-        # Calculate brightness using cubic easing and fading, if necessary
-        brightness_range = max_brightness - min_brightness
-        fade_progress = elapsed_minutes / total_minutes
-        ease_progress = cubic_ease_in_out(fade_progress)
-        calculated_brightness = max_brightness - int(brightness_range * ease_progress)
-        calculated_brightness = min(255, max(0, calculated_brightness * fader_boost))
-        # there's a better way to do the line above such that it doesn't have to clip at the top
-        output = calculated_brightness
-    elif end_minutes < current_minutes <= global_lights_off_minutes:
-        # After end time but before global lights off time
-        logger.info(f"{entity_id} set to min brightness {min_brightness} after end time.")
-        output = min_brightness
-    elif global_lights_off_minutes < current_minutes < global_morning_minutes:
-        # After global lights off time but before global morning time
-        logger.info(f"{entity_id} turned off after global lights off time if no party mode.")
-        if fader_booster_is_active == "on":
-            #maybe change this is if the jump is too rapid?
-            output = min_brightness / 2
-        else:
-            output = 0
-    # else:
-    #     # Outside all specified times, keep current brightness
-    #     if input_boolean_entity == "input_boolean.light_under_cabinet_lights_is_active":
-    #         logger.error(f"got UCL. needs_reset is {needs_reset}")
-    #     logger.info(f"{entity_id} calc'ed outside time. Brtns: {current_brightness}")
-    #     if needs_reset == "on":
-    #         output = 0
-    #     else:
-    #         output = max(0, current_brightness)
-    else:
-        # Outside all specified times, keep current brightness
-        if input_boolean_entity == "input_boolean.light_under_cabinet_lights_is_active":
-            logger.error(f"got UCL. needs_reset is {needs_reset}")
-        logger.info(f"{entity_id} calc'ed outside time. Brtns: {current_brightness}")
-        if current_minutes < sunset_minutes and needs_reset == "on":
-            output = 0
-        else:
-            output = max(0, current_brightness)
-    
-    if needs_reset == "off":
-        if current_brightness == 0 or output < 0.8 * current_brightness or output > 1.2 * current_brightness:
-            hass.services.call('input_boolean', 'turn_off', {'entity_id': input_boolean_entity})
-            return current_brightness
-        else:
-            return output
-    elif needs_reset == "on":
-        hass.services.call('input_boolean', 'turn_on', {'entity_id': input_boolean_entity})
-        hass.services.call('input_boolean', 'turn_off', {'entity_id': needs_reset_entity})
-        return output
-    else:
-        return output
-        
+        if total_minutes <= 0:
+            return {"period": "window", "target": None, "reason": "invalid_window"}
+
+        progress = (current_minutes - start_minutes) / total_minutes
+        eased = cubic_ease_in_out(progress)
+        target = max_brightness - ((max_brightness - effective_min) * eased)
+        return {"period": "window", "target": boosted_target(target, effective_min, booster_is_active), "reason": "curve"}
+
+    if end_minutes < current_minutes <= lights_off_minutes:
+        target = effective_min
+        return {"period": "post_fade", "target": boosted_target(target, effective_min, booster_is_active), "reason": "floor"}
+
+    if lights_off_minutes < current_minutes < morning_minutes:
+        if booster_is_active and effective_min > 0:
+            return {"period": "overnight", "target": clamp_brightness(effective_min / 2), "reason": "overnight_boost"}
+        return {"period": "overnight", "target": 0, "reason": "overnight_off"}
+
+    return {"period": "daytime", "target": None, "reason": "passive"}
+
+
+def decide_action(entity_id, light_state, current_brightness, target_info, needs_reset):
+    target = target_info["target"]
+    period = target_info["period"]
+
+    if needs_reset == "on":
+        if period == "window" and target is not None:
+            if target <= 0:
+                return {"action": "turn_off", "brightness": 0, "reason": "reset_window_zero"}
+            return {"action": "turn_on", "brightness": target, "reason": "reset_window"}
+        return {"action": "turn_off", "brightness": 0, "reason": "reset_outside_window"}
+
+    if target is None:
+        return {"action": "hold", "brightness": current_brightness, "reason": target_info["reason"]}
+
+    if target <= 0:
+        return {"action": "turn_off", "brightness": 0, "reason": target_info["reason"]}
+
+    if light_state is None or light_state.state != "on":
+        return {"action": "hold", "brightness": current_brightness, "reason": "light_off"}
+
+    if current_brightness < target - DEADBAND:
+        return {"action": "hold", "brightness": current_brightness, "reason": "manual_dim_hold"}
+
+    if current_brightness > target + DEADBAND:
+        return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
+
+    return {"action": "turn_on", "brightness": target, "reason": "on_curve"}
+
+
 def adjust_brightness(entity_id, current_time, sunset_time):
-    # Get the boolean value
     formated_entity_id = entity_id.replace(".", "_")
     input_boolean_entity = "input_boolean." + formated_entity_id + "_is_active"
-    is_active = hass.states.get(input_boolean_entity).state == "on"
-    
-    # Get the start time
-    start_time_entity = "input_datetime." + formated_entity_id + "_start_time"
-    start_time = hass.states.get(start_time_entity).state
-    if start_time == "12:34:56":
-        start_time = hass.states.get("input_datetime.global_fader_start_time").state
-    
-    # Get the end time
-    end_time_entity = "input_datetime." + formated_entity_id + "_end_time"
-    end_time = hass.states.get(end_time_entity).state
-    if end_time == "12:34:56":
-        end_time = hass.states.get("input_datetime.global_fader_end_time").state
-    
-    # Get the min brightness value
-    min_brightness_entity = "input_number." + formated_entity_id + "_min_brightness"
-    min_brightness = float(hass.states.get(min_brightness_entity).state)
-    
-    # Get the max brightness value
-    max_brightness_entity = "input_number." + formated_entity_id + "_max_brightness"
-    max_brightness = float(hass.states.get(max_brightness_entity).state)
+    needs_reset_entity = "input_boolean." + formated_entity_id + "_needs_reset"
 
-    # Calculate what the brightness should be
-    brightness = calculate_brightness(current_time, start_time, end_time, max_brightness, min_brightness, input_boolean_entity, formated_entity_id, sunset_time)
+    is_active = get_state(input_boolean_entity, "off") == "on"
+    needs_reset = get_state(needs_reset_entity, "off")
+
+    if not is_active and needs_reset != "on":
+        logger.info("{} fader inactive; holding.".format(entity_id))
+        return
+
+    start_time_entity = "input_datetime." + formated_entity_id + "_start_time"
+    start_time = get_state(start_time_entity)
+    if start_time == SENTINEL_TIME:
+        start_time = get_state("input_datetime.global_fader_start_time")
+
+    end_time_entity = "input_datetime." + formated_entity_id + "_end_time"
+    end_time = get_state(end_time_entity)
+    if end_time == SENTINEL_TIME:
+        end_time = get_state("input_datetime.global_fader_end_time")
+
+    min_brightness_entity = "input_number." + formated_entity_id + "_min_brightness"
+    max_brightness_entity = "input_number." + formated_entity_id + "_max_brightness"
+    min_brightness = safe_int(get_state(min_brightness_entity), None)
+    max_brightness = safe_int(get_state(max_brightness_entity), None)
+
+    if start_time is None or end_time is None or min_brightness is None or max_brightness is None:
+        logger.error("Missing fader inputs for {}. current_time={}, start={}, end={}, max={}, min={}".format(entity_id, current_time, start_time, end_time, max_brightness, min_brightness))
+        return
+
+    light_state = hass.states.get(entity_id)
+    current_brightness = get_current_brightness(light_state)
+
+    target_info = calculate_target(current_time, start_time, end_time, max_brightness, min_brightness)
+    decision = decide_action(entity_id, light_state, current_brightness, target_info, needs_reset)
+
+    logger.info("{} fader period={}, target={}, current={}, needs_reset={}, decision={}, reason={}".format(entity_id, target_info["period"], target_info["target"], current_brightness, needs_reset, decision["action"], decision["reason"]))
+
+    if needs_reset == "on":
+        hass.services.call("input_boolean", "turn_on", {"entity_id": input_boolean_entity})
+        hass.services.call("input_boolean", "turn_off", {"entity_id": needs_reset_entity})
+
+    if decision["action"] == "hold":
+        return
 
     try:
-        brightness = int(brightness)
-    except (TypeError, ValueError) as e:
-        # Log an error if conversion fails
-        logger.error("Cannot convert to int. Entity ID {}, time {}, start {}, end {}, max {}, min {}. Error: {}".format(entity_id, current_time, start_time, end_time, max_brightness, min_brightness, str(e)))
-        return  # Exit the function
-    
-    if is_active:
-        # Set the brightness of the light
-        hass.services.call("light", "turn_on", {"entity_id": entity_id, "brightness": brightness})
+        if decision["action"] == "turn_off":
+            hass.services.call("light", "turn_off", {"entity_id": entity_id})
+        elif decision["action"] == "turn_on":
+            brightness = safe_int(decision["brightness"], None)
+            if brightness is None:
+                logger.error("Cannot convert brightness to int. Entity ID {}, time {}, start {}, end {}, max {}, min {}, decision {}".format(entity_id, current_time, start_time, end_time, max_brightness, min_brightness, decision))
+                return
+            hass.services.call("light", "turn_on", {"entity_id": entity_id, "brightness": brightness})
+    except Exception as e:
+        logger.error("Fader service call failed for {} with decision {}. Error: {}".format(entity_id, decision, str(e)))
 
 
 # Get the function to call and the parameters from the input data
