@@ -459,6 +459,20 @@ input_number:
     max: 255
     step: 1
 
+  light_hue_color_lamp_1_2_max_brightness:
+    name: Yellow Lamp Max Brightness
+    initial: 255
+    min: 0
+    max: 255
+    step: 1
+
+  light_hue_color_lamp_1_2_min_brightness:
+    name: Yellow Lamp Min Brightness
+    initial: 10
+    min: 0
+    max: 255
+    step: 1
+
   light_hue_white_lamp_1_max_brightness:
     name: Hue White Lamp 1 Max Brightness
     initial: 250

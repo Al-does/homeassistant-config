@@ -6,3 +6,18 @@ light:
       - light.dimmable_light_1_2  # Bookshelf Center
       - light.dimmable_light_1_3  # Bookshelf Upper
       - light.dimmable_light_1_4  # Bookshelf Lower
+
+  - platform: group
+    name: Art Room Overhead Lights
+    entities:
+      - light.west_4
+      - light.hue_color_lamp_5
+      - light.hue_color_lamp_2
+      - light.hue_color_lamp_1_3
+      - light.hue_color_lamp_3
+
+  - platform: group
+    name: Art Room Lamps
+    entities:
+      - light.urban_outfiters  # Floor lamp
+      - light.hue_color_lamp_1_2  # Yellow lamp
