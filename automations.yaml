@@ -818,7 +818,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.presence_sensor_fp2_a12d_presence_sensor_1
+    entity_id: binary_sensor.art_room_aqara_fp2_presence_sensor_presence_sensor_1
     to: 'on'
   condition:
   - condition: sun
@@ -836,7 +836,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.presence_sensor_fp2_a12d_presence_sensor_1
+    entity_id: binary_sensor.art_room_aqara_fp2_presence_sensor_presence_sensor_1
     to: 'off'
   condition:
   - condition: sun
