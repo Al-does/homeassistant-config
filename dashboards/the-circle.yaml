@@ -3,29 +3,36 @@ views:
   - title: The Circle
     path: the-circle
     cards:
-      - type: entities
-        title: Fade Schedule
-        show_header_toggle: false
-        entities:
-          - entity: input_datetime.global_fader_start_time
-          - entity: input_datetime.global_fader_end_time
-          - entity: input_datetime.global_lights_off_time
-      - type: horizontal-stack
-        cards:
-          - type: button
-            entity: switch.sengled_switch_2_switch
-            name: Boob Lamp
-            icon: mdi:lamp
-            show_state: true
-            tap_action:
-              action: toggle
-          - type: button
-            entity: switch.sauna_lights_third_reality_2_switch
-            name: Sauna Lights
-            icon: mdi:ceiling-light
-            show_state: true
-            tap_action:
-              action: toggle
+      - type: conditional
+        conditions:
+          - condition: template
+            value_template: >-
+              {{ state_attr('climate.top_floor', 'current_temperature') | float(0) >= 78 }}
+        card:
+          type: markdown
+          content: >
+            ## ⚠️ Third Floor Hot
+
+            The third floor thermostat is **{{ state_attr('climate.top_floor', 'current_temperature') }}°F**.
+            Consider turning on the A/C or lowering the setpoint.
+      - type: conditional
+        conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity: person.alex_vardakostas
+                state_not: home
+              - condition: state
+                entity: person.anna_tong
+                state_not: home
+        card:
+          type: map
+          title: Where are we?
+          aspect_ratio: 16:9
+          auto_fit: true
+          entities:
+            - entity: person.alex_vardakostas
+            - entity: person.anna_tong
       - type: horizontal-stack
         cards:
           - type: button
@@ -52,3 +59,35 @@ views:
         tap_action:
           action: call-service
           service: script.reactivate_all_dimmers
+      - type: entities
+        title: Fade Schedule
+        show_header_toggle: false
+        entities:
+          - entity: input_datetime.global_fader_start_time
+          - entity: input_datetime.global_fader_end_time
+          - entity: input_datetime.global_lights_off_time
+      - type: horizontal-stack
+        cards:
+          - type: button
+            entity: switch.sengled_switch_2_switch
+            name: Boob Lamp
+            icon: mdi:lamp
+            show_state: true
+            tap_action:
+              action: toggle
+          - type: button
+            entity: switch.sauna_lights_third_reality_2_switch
+            name: Sauna Lights
+            icon: mdi:ceiling-light
+            show_state: true
+            tap_action:
+              action: toggle
+      - type: thermostat
+        entity: climate.bedroom_2
+        name: Bedroom
+      - type: thermostat
+        entity: climate.top_floor
+        name: Third Floor
+      - type: thermostat
+        entity: climate.9424b8a1064b
+        name: Gree Air Conditioner
