@@ -58,6 +58,9 @@
     - input_boolean.light_hue_white_lamp_1_is_active
     - input_boolean.light_hue_white_lamp_2_is_active
     - input_boolean.light_hue_white_lamp_3_is_active
+    - input_boolean.light_living_room_pendants_is_active
+  - service: input_boolean.turn_off
+    entity_id:
     - input_boolean.light_kitchen_desk_lamp_needs_reset
     - input_boolean.light_under_cabinet_lights_needs_reset
     - input_boolean.light_bookshelf_lights_needs_reset
@@ -67,7 +70,6 @@
     - input_boolean.light_hue_white_lamp_1_needs_reset
     - input_boolean.light_hue_white_lamp_2_needs_reset
     - input_boolean.light_hue_white_lamp_3_needs_reset
-    - input_boolean.light_living_room_pendants_is_active
     - input_boolean.light_living_room_pendants_needs_reset
 - id: fade_under_cabinet_lights
   alias: call the UCL adjust_brightness routine every minute
