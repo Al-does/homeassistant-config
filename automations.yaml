@@ -730,6 +730,11 @@
   - service: script.reactivate_all_dimmers
     metadata: {}
     data: {}
+  - service: climate.set_hvac_mode
+    target:
+      entity_id: climate.bedroom
+    data:
+      hvac_mode: heat
   mode: single
 - id: turn_off_lights_when_no_one_is_home
   alias: Turn Off Lights When No One is Home
@@ -793,6 +798,11 @@
       - input_boolean.light_window_mid_shelf_wled_is_active
       - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
       - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
+  - service: climate.set_hvac_mode
+    target:
+      entity_id: climate.bedroom
+    data:
+      hvac_mode: off
 - id: run_scripts_after_global_lights_off_time
   alias: Run Scripts After Global Lights Off Time
   trigger:
