@@ -40,7 +40,7 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.middle_shelf_wled
+      light: light.window_top_shelf_wled
       transitionTime:
         hours: 0
         minutes: 30
@@ -59,7 +59,7 @@
       minimumStepDelayInMilliseconds: 100
       shouldTryToUseNativeLampTransitionsToo: false
       isDebugMode: false
-      light: light.wled
+      light: light.window_mid_shelf_wled
       transitionTime:
         hours: 0
         minutes: 30
