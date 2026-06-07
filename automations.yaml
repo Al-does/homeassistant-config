@@ -646,18 +646,6 @@
   - service: script.reactivate_art_room_dimmer
   - service: script.reactivate_kitchen_dimmer
   - service: script.reactivate_dining_room_dimmer
-- id: run_scripts_after_global_fader_end_time
-  alias: Run Scripts After Global Lights Off Time
-  trigger:
-  - platform: template
-    value_template: '{{ (states(''input_datetime.global_fader_end_time'') | as_timestamp)
-      + 60 <= now().timestamp() }}
-
-      '
-  action:
-  - service: script.reactivate_art_room_dimmer
-  - service: script.reactivate_kitchen_dimmer
-  - service: script.reactivate_dining_room_dimmer
 - id: '1724961941909'
   alias: Light On Art Room if Occupied
   description: ''
