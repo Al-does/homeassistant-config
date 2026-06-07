@@ -5,9 +5,9 @@ views:
     cards:
       - type: conditional
         conditions:
-          - condition: template
-            value_template: >-
-              {{ states('sensor.living_room_temperature_2') | float(0) >= 78 }}
+          - condition: numeric_state
+            entity: sensor.living_room_temperature_2
+            above: 78
         card:
           type: markdown
           content: >
