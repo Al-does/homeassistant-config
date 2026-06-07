@@ -142,6 +142,20 @@ views:
         entity: climate.bedroom_2
         name: Bedroom
       - type: entities
+        title: Bedroom Air Quality
+        show_header_toggle: false
+        entities:
+          - entity: sensor.master_bedroom_bedroom_air_quality_sensor_temperature
+            name: Temperature
+          - entity: sensor.master_bedroom_bedroom_air_quality_sensor_humidity
+            name: Humidity
+          - entity: sensor.master_bedroom_bedroom_air_quality_sensor_carbon_dioxide
+            name: CO2
+          - entity: sensor.master_bedroom_bedroom_air_quality_sensor_pm2_5
+            name: PM2.5
+          - entity: sensor.master_bedroom_bedroom_air_quality_sensor_voc_index
+            name: VOC Index
+      - type: entities
         title: Top Floor Thermostat
         show_header_toggle: false
         entities:
