@@ -285,19 +285,19 @@ H. Deadband: with the light on the curve, a sub-10% reported fluctuation stays i
 - `light.urban_outfiters` retains its existing (misspelled) entity_id; do not
   rename without migrating all helpers and automations.
 
-## 11. Known bug to fix: engagement forces a snap to ceiling
-- Symptom: at `global_fader_start_time` every managed light jumps to its maximum
-  brightness, overriding any value the user set during the day and brightening
-  lights up (which violates never-brighten / scenario F and pre-empts the future
-  fade-to-on project).
-- Root cause: the `Turn On Lights Boolean` automation in `automations.yaml` turns
+## 11. Fixed bug: engagement previously forced a snap to ceiling
+- Previous symptom: at `global_fader_start_time` every managed light jumped to its
+  maximum brightness, overriding any value the user set during the day and
+  brightening lights up (which violated never-brighten / scenario F and pre-empted
+  the future fade-to-on project).
+- Root cause: the `Turn On Lights Boolean` automation in `automations.yaml` turned
   ON `_needs_reset` for all 10 lights in addition to `_is_active`. With
-  `needs_reset == on`, the next evaluation snaps each light to the curve target,
+  `needs_reset == on`, the next evaluation snapped each light to the curve target,
   which equals the ceiling at `start_time`.
-- Fix: in that automation's `input_boolean.turn_on` action, remove the ten
-  `_needs_reset` entities (and ideally `input_boolean.turn_off` them instead, so any
-  stale yield from the previous evening is cleared). Engagement must set only
-  `_is_active`; the unified hold rule (6.5) then governs the rest.
+- Implemented fix: that automation now turns ON only the ten `_is_active` entities
+  and explicitly turns OFF the ten `_needs_reset` entities, so stale reset requests
+  are cleared without forcing a snap to the curve. The unified hold rule (6.5) then
+  governs start-time handoff.
 
 ## 12. Integration points & automation hooks (in `automations.yaml` / `scripts.yaml`)
 The Fader is wired to the rest of the system through the following hooks. Any
@@ -316,6 +316,12 @@ re-implementation must preserve these contracts (entity names, the meaning of
   and automation `reactivate_kitchen_dimmer_auto` (button
   `input_button.reactivate_kitchen_dimmer`). Together the room groups cover all 10
   managed lights.
+- The Circle dashboard (`dashboards/the-circle.yaml`) exposes
+  `input_datetime.global_fader_start_time`, `input_datetime.global_fader_end_time`,
+  and `input_datetime.global_lights_off_time` in its Fade Schedule card. It does
+  not currently expose `input_datetime.global_morning_time`. Its reset buttons call
+  `script.reactivate_kitchen_dimmer`, `script.reactivate_dining_room_dimmer`,
+  `script.reactivate_art_room_dimmer`, and `script.reactivate_all_dimmers`.
 - Brighten-and-disengage: scripts `make_kitchen_bright_again`,
   `make_dining_room_bright_again`, `make_art_room_bright_again` (and automation
   `make_the_kitchen_bright_again_2`). These set lights to full brightness and turn
@@ -331,10 +337,11 @@ re-implementation must preserve these contracts (entity names, the meaning of
   - `restore_lights_when_returning_home A/B` and the zone-arrival automations
     (`Turn on Lights When ... Comes Home`) re-engage via `_is_active` or the
     reactivate (reset) scripts.
-- Schedule-boundary re-assertion: `run_scripts_after_global_fader_end_time` and
-  `run_scripts_after_global_lights_off_time` fire the reactivate (reset) scripts
-  ~60s after those anchors, forcing conformance. These depend on:
-  end -> floor (6.5), overnight -> off, and out-of-window Reset -> OFF (6.6, 6.9).
+- Schedule-boundary re-assertion: `run_scripts_after_global_lights_off_time` fires
+  the reactivate (reset) scripts ~60s after lights-off, forcing overnight
+  conformance. This depends on out-of-window Reset -> OFF (6.6, 6.9). NOTE:
+  `run_scripts_after_global_fader_end_time` was referenced in earlier design notes
+  but is not currently defined in `automations.yaml`.
 - Daytime presence reset: `Light Off Art Room if Unoccupied` calls
   `reactivate_art_room_dimmer` during the day. This RELIES on out-of-window Reset
   resolving to OFF (6.9 / scenario 9.C); if that behavior changes, this breaks.
@@ -367,3 +374,21 @@ re-implementation must preserve these contracts (entity names, the meaning of
     entity is keyed by person, not light). It always falls back to 255.
 - These are independent of the core engine logic but touch the same `_is_active` /
   brightness contracts, so confirm intended behavior before relying on them.
+
+## 14. Implementation and live validation notes
+- Implemented on 2026-06-06 in `python_scripts/hello_world.py` and
+  `automations.yaml`: the engine now returns explicit command/hold/off decisions,
+  manual deviations HOLD without turning `_is_active` off, and target `0` maps to
+  `light.turn_off`.
+- Live validation covered the critical acceptance paths:
+  - Manual brighten on `light.under_cabinet_lights` held brightness and left
+    `_is_active` on.
+  - In-window Reset on `light.under_cabinet_lights` snapped to the curve and cleared
+    `_needs_reset`.
+  - Manual dim on `light.under_cabinet_lights` held below the curve, then resumed
+    when the synthetic curve caught down.
+  - Out-of-window Reset on `light.giraffe_lamp` turned the light off.
+  - Temporary floor-zero on `light.giraffe_lamp` turned the light off cleanly, then
+    the floor was restored to `1`.
+  - Synthetic start-time handoff on a dimmed `light.giraffe_lamp` did not brighten
+    the light and left `_is_active` on / `_needs_reset` off.
