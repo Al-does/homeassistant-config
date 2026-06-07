@@ -1,24 +1,33 @@
 # PRD: Evening Light Fader ("The Fader")
 
 ## 1. Summary
-The Fader is a Home Assistant automation system that gradually dims a set of
-household lights from a configured maximum down to a configured minimum across a
-scheduled evening window (e.g., 21:30 -> 23:40), eases them to a floor until a
-"lights off" time, and turns them off overnight until morning. Its defining
-requirement is robust coexistence with manual human control: people may turn lights
-on/off or change brightness at any time -- including during the day when the Fader
-is dormant -- and the Fader must never fight them. A per-room "Reset to Schedule"
-control lets users hand a light (or room) back to the Fader on demand.
+The Fader is a Home Assistant automation system that gently fades selected lights
+on before sunset, gradually dims managed lights from a configured maximum down to a
+configured minimum across the evening window (e.g., 21:30 -> 23:40), eases them to
+a floor until a "lights off" time, and turns them off overnight until morning. Its
+defining requirement is robust coexistence with manual human control: people may
+turn lights on/off or change brightness at any time -- including during the day
+when the Fader is dormant -- and the Fader must never fight them. A per-room
+"Reset to Schedule" control lets users hand a light (or room) back to the Fader on
+demand.
 
 ## 2. Where this lives (current implementation = source of truth)
 - Engine: `homeassistant-config/python_scripts/fade_out.py`. It is a Home
   Assistant `python_script`, invoked via the `python_script.fade_out` service
-  with `data: { function_name: "adjust_brightness", entity_id, current_time,
-  sunset_time }`. A `function_name` dispatcher is at the bottom of the file.
+  with `data: { function_name, entity_id, current_time, sunset_time }`. The live
+  entry points are `adjust_brightness` for per-minute evaluation and
+  `start_fade_in` for scheduled fade-in enrollment. A `function_name` dispatcher
+  is at the bottom of the file.
 - Per-light drivers: automations named `fade_<light>` (in `automations.yaml`) fire
   on `platform: time_pattern, minutes: /1`, gated by a condition that the light's
   `is_active` boolean is `on`. Each passes `current_time` (now, `%H:%M:%S`) and
   `sunset_time` (sun.sun next_setting) to the engine.
+- Fade-in starter: automation `Start Fade-In Lights` fires once per minute and
+  calls `start_fade_in` for the fade-in-managed lights. The engine no-ops unless
+  the current time is within the configured per-light fade-in start grace window.
+- Fade-in schedule updater: automation `Update Fade-In Start Times to Sunset
+  Offsets` keeps `input_datetime.global_fade_in_start_time` and selected per-light
+  fade-in starts aligned with local sunset offsets.
 - Engagement: automation `Turn On Lights Boolean` fires at
   `input_datetime.global_fader_start_time`. Conditions: at least one resident is
   home AND `input_boolean.guest_mode` is off. Action: turns ON `_is_active` for all
@@ -58,12 +67,10 @@ control lets users hand a light (or room) back to the Fader on demand.
   light's live state (no in-memory state).
 
 ## 4. Non-Goals
-- Turning lights ON autonomously (the Fader only adjusts already-on lights), and
-  never brightening a light up toward its ceiling autonomously.
-- Raising/brightening lights up from a lower level or from off. The Fader only ever
-  holds or dims. Bringing lights UP automatically (e.g., a sunrise "fade-to-on") is
-  a separate FUTURE project and must not be implemented here. The only sanctioned
-  brightening is an explicit user Reset that snaps a light onto the curve.
+- Turning arbitrary lights ON autonomously outside configured fade-in enrollment.
+  `start_fade_in` is the only scheduled path that turns an off light on.
+- Fighting manual changes during fade-in or fade-out. A user turning a light off or
+  moving it away from the curve remains authoritative.
 - Color or color-temperature control (brightness only).
 - Replacing circadian/adaptive lighting.
 - Owning the schedule UI beyond the existing dashboard helpers.
@@ -109,10 +116,12 @@ For stem `<f>`:
 - input_boolean.<f>_needs_reset   - snap onto schedule next evaluation.
 - input_number.<f>_max_brightness - ceiling (0-255).
 - input_number.<f>_min_brightness - floor (0-255).
+- input_datetime.<f>_fade_in_start_time - fade-in start; sentinel "12:34:56" => use global.
 - input_datetime.<f>_start_time   - window start; sentinel "12:34:56" => use global.
 - input_datetime.<f>_end_time     - window end;   sentinel "12:34:56" => use global.
 
 ### 6.3 Global helper entities
+- input_datetime.global_fade_in_start_time (daily local sunset minus 20 minutes) - fade-in fallback.
 - input_datetime.global_fader_start_time  (daily local sunset) - window start fallback.
 - input_datetime.global_fader_end_time    (default 22:30:00) - window end fallback.
 - input_datetime.global_lights_off_time   (default 23:40:00) - hard "go dark" time.
@@ -135,7 +144,11 @@ For stem `<f>`:
 
 ### 6.5 Brightness curve and evaluation
 For each managed light, every minute (and immediately on reset), compute a target:
-- If `start <= now <= end` (in window):
+- If `fade_in_start <= now < start` (fade-in window):
+    progress = (now - fade_in_start) / (start - fade_in_start)
+    eased    = cubic_ease_in_out(progress)
+    target   = round(max * eased), clamped to at least 1 once the window has begun
+- If `start <= now <= end` (fade-out window):
     progress = (now - start) / (end - start)
     eased    = cubic_ease_in_out(progress)        # 4t^3 for t<0.5; 1-((-2t+2)^3)/2 else
     target   = round(max - (max - min) * eased)    # 0-255
@@ -146,12 +159,16 @@ For each managed light, every minute (and immediately on reset), compute a targe
   light's current brightness (issues effectively no change), EXCEPT a reset request
   outside the window resolves to OFF (see 6.9, scenario 9.C).
 - Invariant: if `max <= min`, hold (no fade, never brighten).
+- Scheduled fade-in enrollment is explicit: `start_fade_in` may turn an off light
+  on only inside that light's small start grace window. Regular per-minute
+  evaluation will not turn an off light on during fade-in, so a user power-off is
+  not fought.
 - Per-tick decision (NO new state -- derived live from current brightness C vs target
   T, with deadband D = 10% of full scale, ~26/255). Because the per-minute fade step
   is tiny (a few levels out of 255, far smaller than D), a light the Fader is driving
   normally sits within D of the curve; only a human jump exceeds D. Each tick, for a
   managed (`_is_active == on`) light that is on:
-    1. `|T - C| <= D` (on the curve):      command T -- the normal dimming step.
+    1. `|T - C| <= D` (on the curve):      command T -- the normal curve step.
     2. `C < T - D` (dimmer than the curve): HOLD, command nothing. Covers a manual
        dim AND a daytime-dimmed / fade-in-handoff light at engagement. As the
        descending curve reaches C (re-entering case 1), dimming resumes automatically.
@@ -167,6 +184,8 @@ For each managed light, every minute (and immediately on reset), compute a targe
   (Commands are issued every tick while on track; an implementation may skip
   re-sending a value the light is already at, e.g. while holding at the floor, to
   avoid redundant calls -- a tiny epsilon, unrelated to the 10% detection deadband.)
+- Fade-in never dims a light down to meet the rising curve. If live brightness is
+  already above the fade-in target, the engine holds until the curve catches up.
 
 ### 6.6 Floor-zero maps to OFF
 When the resolved target is 0 (including floor == 0 at/after end time, and the
@@ -232,23 +251,28 @@ brightness. There is no in-memory source of truth, so a mid-fade HA restart
 recovers automatically (the next minute tick recomputes the absolute target).
 
 ## 7. Engagement / disengagement lifecycle
-1. At `global_fader_start_time`, if a resident is home and guest_mode is off, the
+1. Before sunset, `Start Fade-In Lights` calls `start_fade_in` once per minute for
+   fade-in-managed lights. Each call only enrolls a light when that light is within
+   its resolved fade-in start grace window. Enrollment clears stale `_needs_reset`,
+   turns `_is_active` on, and turns an off light on to the current fade-in curve
+   target.
+2. At `global_fader_start_time`, if a resident is home and guest_mode is off, the
    engagement automation turns ON `_is_active` for all managed lights and clears
    `_needs_reset` (sets it OFF). It does NOT force a snap to the curve.
    `update_global_fader_start_time_to_sunset` refreshes that helper from the local
    sunset time at HA startup and daily at noon, rounded to minute precision so the
    template trigger can match.
-2. Each minute, `fade_<light>` evaluates lights whose `_is_active` is on, applying
+3. Each minute, `fade_<light>` evaluates lights whose `_is_active` is on, applying
    the three-way per-tick decision (6.5): command when on the curve (case 1), hold
    when dimmer (case 2) or brighter (case 3) than the curve, never brighten, and
    leave off lights off.
-3. A manual BRIGHTEN holds the light (case 3) until Reset or the next window; a
+4. A manual BRIGHTEN holds the light (case 3) until Reset or the next window; a
    manual DIM holds (case 2) and auto-resumes when the curve catches down. Neither
    turns `_is_active` off and neither stores a flag -- both are derived each tick.
-4. Reset (per-light/room) sets `_needs_reset`; the next evaluation clears it and
+5. Reset (per-light/room) sets `_needs_reset`; the next evaluation clears it and
    snaps the light to `desired_state(now)` (fade window -> curve target, post-fade
    -> configured floor, overnight/daytime -> OFF).
-5. After `global_lights_off_time`, lights go OFF (overnight). After
+6. After `global_lights_off_time`, lights go OFF (overnight). After
    `global_morning_time`, the Fader is passive again until the next start.
 
 ## 8. Logging & error handling
@@ -350,17 +374,20 @@ re-implementation must preserve these contracts (entity names, the meaning of
   `reactivate_art_room_dimmer` during the day. This RELIES on daytime Reset
   resolving to OFF (6.9 / scenario 9.C); if that behavior changes, this breaks.
 
-### Relationship to the sunset "Fade In" automations (handoff, not Fader)
-- Automations `Fade In - L-Bar Lights`, `Fade In - L-Desk`, `Fade In - Art Room`,
-  `Fade In - L-Giraffe lamp`, `Fade In - Kitchen` use a third-party easing script
-  (`script.1720765151144`) to brighten lights UP around sunset. They do NOT set
-  `_is_active` and are independent of the Fader engine.
-- This means a script-based "fade to on" already exists (cf. the section 4 Non-Goal,
-  which concerns NOT adding raising logic to the Fader engine itself).
-- Handoff contract: at `global_fader_start_time` the Fader engages and, via the
-  never-brighten / unified hold rule (6.5), holds each light at wherever the Fade-In
-  left it until the descending curve catches down -- so the Fader never yanks these
-  lights up or abruptly down at handoff.
+### Unified sunset fade-in
+- The previous third-party Ashley fade-in script has been removed. Sunset fade-in is
+  now handled by `python_scripts/fade_out.py` through `function_name:
+  start_fade_in`.
+- Automation `Start Fade-In Lights` calls `start_fade_in` once per minute for the
+  fade-in-managed lights. WLED lights are called unconditionally; art room, giraffe,
+  and kitchen fade-ins are called only when `person.anna_tong` or
+  `person.alex_vardakostas` is home.
+- `start_fade_in` does not use `_needs_reset`. It clears stale reset state, turns
+  `_is_active` on, and turns an off light on only when the current time is inside
+  that light's own fade-in start grace window.
+- Existing `fade_<light>` per-minute drivers continue the fade-in curve once a light
+  is active. At `global_fader_start_time`, the same engine naturally transitions
+  from fade-in to fade-out without a third-party handoff.
 
 ## 13. Additional issues found in the automations (fix or confirm)
 - Coverage gap: `turn_off_multiple_fader_booleans_3` and

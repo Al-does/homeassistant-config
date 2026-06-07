@@ -1,107 +1,76 @@
-- id: '1720767728904'
-  alias: Fade In - WLEDs
-  description: At sunset, fade in all bar and shelf WLED strips to 75%.
+- id: start_fade_in_lights
+  alias: Start Fade-In Lights
+  description: Enroll sunset fade-in lights at their configured per-light start times.
   trigger:
-  - platform: sun
-    event: sunset
-    offset: '-3:00:00'
+  - platform: time_pattern
+    minutes: /1
   condition: []
   action:
-  - service: script.1720765151144
-    metadata: {}
+  - service: python_script.fade_out
     data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 75
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.bar_wled
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
+      function_name: start_fade_in
+      entity_id: light.bar_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+  - service: python_script.fade_out
     data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 75
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.window_top_shelf_wled
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
+      function_name: start_fade_in
+      entity_id: light.window_top_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+  - service: python_script.fade_out
     data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 75
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.window_mid_shelf_wled
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
+      function_name: start_fade_in
+      entity_id: light.window_mid_shelf_wled
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+  - service: python_script.fade_out
     data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 75
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.kitchen_top_shelf_wled_segment_1
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
+      function_name: start_fade_in
+      entity_id: light.kitchen_top_shelf_wled_segment_1
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+  - service: python_script.fade_out
     data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 75
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.kitchen_mid_shelf_wled_segment_1
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
+      function_name: start_fade_in
+      entity_id: light.kitchen_mid_shelf_wled_segment_1
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: person.anna_tong
+        state: home
+      - condition: state
+        entity_id: person.alex_vardakostas
+        state: home
+    then:
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.urban_outfiters
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.bookshelf_lights
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.giraffe_lamp
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.under_cabinet_lights
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.dimmable_light_1
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
+        entity_id: light.hue_white_lamp_1
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
   mode: single
 - id: turn_on_lights_boolean
   alias: Turn On Lights Boolean
@@ -172,6 +141,34 @@
       entity_id: input_datetime.global_fader_start_time
     data:
       time: '{{ as_timestamp(state_attr(''sun.sun'', ''next_setting'')) | timestamp_custom(''%H:%M:00'', true) }}'
+  mode: single
+- id: update_fade_in_start_times_to_sunset_offsets
+  alias: Update Fade-In Start Times to Sunset Offsets
+  description: Keep fade-in helpers aligned with local sunset offsets.
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time
+    at: '12:00:00'
+  action:
+  - service: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.global_fade_in_start_time
+    data:
+      time: '{{ (as_timestamp(state_attr(''sun.sun'', ''next_setting'')) - 20 * 60) | timestamp_custom(''%H:%M:00'', true) }}'
+  - service: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.light_giraffe_lamp_fade_in_start_time
+    data:
+      time: '{{ (as_timestamp(state_attr(''sun.sun'', ''next_setting'')) - 2 * 60 * 60) | timestamp_custom(''%H:%M:00'', true) }}'
+  - service: input_datetime.set_datetime
+    target:
+      entity_id:
+      - input_datetime.light_under_cabinet_lights_fade_in_start_time
+      - input_datetime.light_dimmable_light_1_fade_in_start_time
+      - input_datetime.light_hue_white_lamp_1_fade_in_start_time
+    data:
+      time: '{{ (as_timestamp(state_attr(''sun.sun'', ''next_setting'')) - 50 * 60) | timestamp_custom(''%H:%M:00'', true) }}'
   mode: single
 - id: fade_under_cabinet_lights
   alias: call the UCL adjust_brightness routine every minute
@@ -541,175 +538,6 @@
     - input_boolean.light_hue_white_lamp_1_is_active
     - input_boolean.light_hue_white_lamp_2_is_active
     - input_boolean.light_hue_white_lamp_3_is_active
-  mode: single
-- id: '1722037123767'
-  alias: Fade In - Art Room
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: -03:00:00
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: person.anna_tong
-      state: home
-    - condition: state
-      entity_id: person.alex_vardakostas
-      state: home
-  action:
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 100
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.urban_outfiters
-      transitionTime:
-        hours: 0
-        minutes: 45
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 100
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.bookshelf_lights
-      transitionTime:
-        hours: 0
-        minutes: 45
-        seconds: 0
-  mode: single
-- id: '1722037379150'
-  alias: Fade In - L-Giraffe lamp
-  description: Use Ashley to fade in lights at sunset.
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: -02:00:00
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: person.anna_tong
-      state: home
-    - condition: state
-      entity_id: person.alex_vardakostas
-      state: home
-  action:
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutSine
-      endBrightnessPercent: 100
-      endBrightnessEntityScale: zeroToTwoFiftyFive
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.giraffe_lamp
-      transitionTime:
-        hours: 1
-        minutes: 30
-        seconds: 0
-      endColorTemperatureKelvin: 2000
-  mode: single
-- id: '1722051819435'
-  alias: Fade In - Kitchen
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: -00:50:00
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: person.anna_tong
-      state: home
-    - condition: state
-      entity_id: person.alex_vardakostas
-      state: home
-  action:
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessPercent: 50
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.under_cabinet_lights
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: easeInOutCubic
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.dimmable_light_1
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
-      endBrightnessPercent: 50
-  - service: script.1720765151144
-    metadata: {}
-    data:
-      lampBrightnessScale: zeroToTwoFiftyFive
-      easingTypeInput: auto
-      endBrightnessPercent: 100
-      endBrightnessEntityScale: zeroToOneHundred
-      autoCancelThreshold: 10
-      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
-      shouldResetTheStopEntityToOffAtStart: false
-      shouldInvertTheValueOfTheStopEntity: false
-      minimumStepDelayInMilliseconds: 100
-      shouldTryToUseNativeLampTransitionsToo: false
-      isDebugMode: false
-      light: light.hue_white_lamp_1
-      transitionTime:
-        hours: 0
-        minutes: 30
-        seconds: 0
   mode: single
 - id: first_person_home_lights_on
   alias: Turn On Lights When First Person Arrives Home

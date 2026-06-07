@@ -42,6 +42,12 @@ input_datetime:
     has_time: true
     initial: "05:00:00"
 
+  global_fade_in_start_time:
+    name: Global Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "21:10:00"
+
   light_kitchen_desk_lamp_start_time:
     name: Kitchen Desk Lamp Start Time
     has_date: false
@@ -254,6 +260,102 @@ input_datetime:
 
   light_kitchen_mid_shelf_wled_segment_1_end_time:
     name: Kitchen Mid Shelf WLED Segment 1 End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_desk_lamp_fade_in_start_time:
+    name: Kitchen Desk Lamp Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_under_cabinet_lights_fade_in_start_time:
+    name: UCL Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_bookshelf_lights_fade_in_start_time:
+    name: Bookshelf Lights Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_dimmable_light_1_fade_in_start_time:
+    name: Dimmable Light 1 Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_urban_outfiters_fade_in_start_time:
+    name: Urban Outfiters Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_giraffe_lamp_fade_in_start_time:
+    name: Giraffe Lamp Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_color_lamp_1_fade_in_start_time:
+    name: Al's Lamp Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_1_fade_in_start_time:
+    name: Hue White Lamp 1 Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_2_fade_in_start_time:
+    name: Hue White Lamp 2 Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_white_lamp_3_fade_in_start_time:
+    name: Hue White Lamp 3 Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_living_room_pendants_fade_in_start_time:
+    name: Living Room Pendants Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_bar_wled_fade_in_start_time:
+    name: Bar WLED Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_top_shelf_wled_fade_in_start_time:
+    name: Window Top Shelf WLED Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_window_mid_shelf_wled_fade_in_start_time:
+    name: Window Mid Shelf WLED Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_top_shelf_wled_segment_1_fade_in_start_time:
+    name: Kitchen Top Shelf WLED Segment 1 Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_kitchen_mid_shelf_wled_segment_1_fade_in_start_time:
+    name: Kitchen Mid Shelf WLED Segment 1 Fade In Start Time
     has_date: false
     has_time: true
     initial: "12:34:56"
