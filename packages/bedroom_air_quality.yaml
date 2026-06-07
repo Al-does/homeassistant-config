@@ -1,0 +1,81 @@
+# Bedroom Air Gradient alerts.
+# US EPA AQI is derived from PM2.5 (µg/m³). AQI 40 ≈ 9.6 µg/m³; clear latch at AQI 35 ≈ 8.4 µg/m³.
+
+input_boolean:
+  bedroom_aqi_alert_active:
+    name: Bedroom AQI Alert Active
+    icon: mdi:air-filter
+
+template:
+  - sensor:
+      - name: Bedroom US AQI
+        unique_id: bedroom_us_aqi
+        unit_of_measurement: AQI
+        device_class: aqi
+        state: >
+          {% set c = states('sensor.master_bedroom_bedroom_air_quality_sensor_pm2_5') | float(none) %}
+          {% if c is none %}
+            unavailable
+          {% elif c <= 12.0 %}
+            {{ ((50.0 - 0.0) / (12.0 - 0.0) * (c - 0.0) + 0.0) | round(0) }}
+          {% elif c <= 35.4 %}
+            {{ ((100.0 - 51.0) / (35.4 - 12.1) * (c - 12.1) + 51.0) | round(0) }}
+          {% elif c <= 55.4 %}
+            {{ ((150.0 - 101.0) / (55.4 - 35.5) * (c - 35.5) + 101.0) | round(0) }}
+          {% elif c <= 150.4 %}
+            {{ ((200.0 - 151.0) / (150.4 - 55.5) * (c - 55.5) + 151.0) | round(0) }}
+          {% elif c <= 250.4 %}
+            {{ ((300.0 - 201.0) / (250.4 - 150.5) * (c - 150.5) + 201.0) | round(0) }}
+          {% elif c <= 500.4 %}
+            {{ ((500.0 - 301.0) / (500.4 - 250.5) * (c - 250.5) + 301.0) | round(0) }}
+          {% else %}
+            500
+          {% endif %}
+
+automation:
+  - id: bedroom_aqi_high_notify
+    alias: Bedroom AQI high - notify
+    description: >-
+      Buzz phone when bedroom US AQI exceeds 40 (~9.6 µg/m³ PM2.5).
+      Re-alerts only after AQI drops below 35 (~8.4 µg/m³).
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bedroom_us_aqi
+        above: 39
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.bedroom_aqi_alert_active
+        state: "off"
+    action:
+      - service: notify.mobile_app_pixel_10_pro_fold
+        data:
+          title: Bedroom air quality
+          message: >-
+            Bedroom AQI is {{ states('sensor.bedroom_us_aqi') }}
+            (PM2.5 {{ states('sensor.master_bedroom_bedroom_air_quality_sensor_pm2_5') }} µg/m³).
+            Consider ventilating.
+          data:
+            ttl: 0
+            priority: high
+            vibrationPattern: [0, 500, 200, 500, 200, 500]
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.bedroom_aqi_alert_active
+
+  - id: bedroom_aqi_clear_latch
+    alias: Bedroom AQI - clear alert latch
+    description: Reset notification latch once AQI falls back below 35.
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bedroom_us_aqi
+        below: 36
+        for:
+          minutes: 5
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.bedroom_aqi_alert_active

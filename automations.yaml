@@ -950,21 +950,6 @@
     data:
       message: Dearest Al, CO2 is above 580 :)
   mode: single
-- id: '1767854248778'
-  alias: AQI in Bedroom Notif
-  description: ''
-  triggers:
-  - trigger: numeric_state
-    entity_id:
-    - sensor.air_quality_sensor_pm2_5
-    above: 6
-  conditions: []
-  actions:
-  - action: notify.mobile_app_pixel_10_pro_fold
-    metadata: {}
-    data:
-      message: AQI in bedroom is high!
-  mode: single
 - id: deck_seat_auto_off_90min
   alias: Deck seat - auto off after 90 min
   mode: restart
