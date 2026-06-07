@@ -131,6 +131,13 @@ views:
             show_state: true
             tap_action:
               action: toggle
+          - type: button
+            entity: switch.deck_switch_deck_seat
+            name: Heated Deck Seat
+            icon: mdi:seat-outline
+            show_state: true
+            tap_action:
+              action: toggle
       - type: thermostat
         entity: climate.bedroom_2
         name: Bedroom

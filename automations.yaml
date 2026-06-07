@@ -986,3 +986,23 @@
                 entity_id: switch.deck_switch_deck_seat
       default:
         - stop: "Switch turned off before timer elapsed; cancel pending shutoff."
+- id: deck_seat_overheat_notify
+  alias: Deck seat - overheat alert
+  description: Buzz phone when the heated deck seat outlet reports overheating.
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.deck_seat_overheated
+      to: "on"
+  conditions: []
+  actions:
+    - action: notify.mobile_app_pixel_10_pro_fold
+      data:
+        title: Deck seat overheating
+        message: >-
+          The heated deck seat outlet is reporting an overheat condition.
+          It may have shut off automatically.
+        data:
+          ttl: 0
+          priority: high
+          vibrationPattern: [0, 500, 200, 500, 200, 500]
+  mode: single
