@@ -50,8 +50,8 @@ control lets users hand a light (or room) back to the Fader on demand.
 - Smoothly dim each managed light from its configured max to its configured min
   across its fade window, using cubic easing.
 - Treat human on/off and brightness actions as authoritative; never fight them.
-- Detect manual brightness changes and yield (flag the light "needs reset"),
-  with an asymmetric auto-resume rule (see 6.7).
+- Detect manual brightness changes and yield (hold), with an asymmetric auto-resume
+  rule (see 6.5/6.7), derived live per tick -- no new per-light state.
 - Provide per-light / per-room "Reset to Schedule" that re-engages the Fader.
 - Be self-healing: correct behavior after HA restarts, missed ticks, or mid-window
   changes, deriving all decisions from persisted helpers + current time + the
@@ -75,11 +75,17 @@ control lets users hand a light (or room) back to the Fader on demand.
   A floor of 0 means "off" at the bottom (see 6.6).
 - Window: the per-light fade interval [start_time, end_time]; may cross midnight.
 - Curve: cubic-eased interpolation from ceiling to floor across the window.
-- Deadband: tolerance (10% of full 0-255 scale, ~26 levels) used to (a) detect
-  manual changes and (b) suppress no-op commands.
+- Deadband: detection threshold (10% of full 0-255 scale, ~26 levels). A light whose
+  live brightness is within D of the curve is "on track" and the Fader commands the
+  next (small) step; a deviation beyond D means a human changed it and the Fader
+  HOLDS. It is a manual-change detection threshold, NOT a command-suppression
+  threshold (normal per-minute steps are far smaller than D and are still commanded).
 - needs_reset: per-light flag meaning "snap this light back onto the schedule on
   the next evaluation."
-- is_active: per-light flag meaning "the Fader is currently driving this light."
+- is_active: per-light two-tier flag. ON = the Fader is MANAGING this light this
+  evening (each tick it either commands the curve step or holds); OFF = explicitly
+  DISENGAGED (away, deactivate button, make-*-bright-again, end of night). A detected
+  manual change must NOT turn it off (see 6.7).
 
 ## 6. Functional Requirements
 
@@ -140,47 +146,60 @@ For each managed light, every minute (and immediately on reset), compute a targe
   light's current brightness (issues effectively no change), EXCEPT a reset request
   outside the window resolves to OFF (see 6.9, scenario 9.C).
 - Invariant: if `max <= min`, hold (no fade, never brighten).
-- Never-brighten / unified hold rule: for a managed light with current brightness C
-  and curve target T, while `T >= C` the Fader HOLDS (issues no command). This
-  single rule implements both "never-brighten" and "auto-resume after a manual dim":
-  the Fader simply waits until the descending curve reaches C (i.e. `T < C`), then
-  dims. A light that was manually dimmed during the day therefore fades naturally
-  instead of jumping up at window open, and a mid-window manual dim needs no special
-  flag.
+- Per-tick decision (NO new state -- derived live from current brightness C vs target
+  T, with deadband D = 10% of full scale, ~26/255). Because the per-minute fade step
+  is tiny (a few levels out of 255, far smaller than D), a light the Fader is driving
+  normally sits within D of the curve; only a human jump exceeds D. Each tick, for a
+  managed (`_is_active == on`) light that is on:
+    1. `|T - C| <= D` (on the curve):      command T -- the normal dimming step.
+    2. `C < T - D` (dimmer than the curve): HOLD, command nothing. Covers a manual
+       dim AND a daytime-dimmed / fade-in-handoff light at engagement. As the
+       descending curve reaches C (re-entering case 1), dimming resumes automatically.
+    3. `C > T + D` (brighter than the curve): HOLD, command nothing. A manual
+       brighten; the Fader does not pull it back down. It stays in case 3 as the
+       curve keeps dropping, until a Reset or the next evening (when T resets to the
+       ceiling and C falls back within D, re-entering case 1).
+  This single rule IS the entire "never-brighten + asymmetric resume" behavior. The
+  asymmetry (a manual dim auto-resumes; a manual brighten holds until reset) falls out
+  of cases 2 vs 3 -- case 2 self-heals into case 1 while case 3 stays put -- so NO
+  yield flag or other new per-light state is required. "Yielded" simply means
+  "managed and currently holding (case 2 or 3)", recomputed each tick, never stored.
+  (Commands are issued every tick while on track; an implementation may skip
+  re-sending a value the light is already at, e.g. while holding at the floor, to
+  avoid redundant calls -- a tiny epsilon, unrelated to the 10% detection deadband.)
 
 ### 6.6 Floor-zero maps to OFF
 When the resolved target is 0 (including floor == 0 at/after end time, and the
 overnight branch), the Fader must turn the light OFF via `light.turn_off`, never
 issue `brightness: 0`.
 
-### 6.7 Manual override (needs_reset) and the deadband
-- Detection (the deadband): on each evaluation, compare the light's actual current
-  brightness to the Fader's expected value (the curve target / last commanded).
-  If they differ by more than the deadband (10% of full scale, ~26 of 255) -- or
-  the light has been turned off -- a human changed it.
-  [CHANGE vs current code: today the threshold is +/-20% (0.8x/1.2x, relative).
-   Target is 10% of full scale.]
-- Asymmetry (which falls out of 6.5):
-  - Manual DIM below the curve: needs no explicit yield flag. The unified hold rule
-    (6.5) holds the light and auto-resumes dimming once the descending curve reaches
-    the user's level.
-  - Manual BRIGHTEN above the curve: this is the ONLY case requiring an explicit
-    yield-until-reset state. When a change beyond the deadband leaves `C > T`, flag
-    the light yielded so the Fader does not dim it back down. It stays yielded until
-    an explicit Reset (or the next window's engagement, which clears the flag).
-- No cooldown: once yielded, the light stays at the user's setting until a Reset
-  (6.9) or the next window's engagement.
-- A mid-window manual power-ON stays manual (the user is presumably using the
-  light); the Fader does not seize it until the next window or a Reset.
-- CRITICAL engagement requirement: the per-minute drivers (`fade_<light>`) only run
-  while `<f>_is_active == on`. Therefore a manual DIM must NOT turn `_is_active` off
-  -- the light must remain engaged so the descending curve can "catch down" and the
-  auto-resume (6.5) can fire. Model the brighten-yield as a SEPARATE flag, not by
-  disengaging `_is_active`.
+### 6.7 Manual override semantics (no new state) and the two-tier `is_active`
+- Detection uses the same deadband as 6.5: a light within D of the curve is "on
+  track"; a deviation beyond D (or the light turned off) is a human change.
+  [CHANGE vs current code: today the threshold is +/-20% (0.8x/1.2x, relative);
+   target is 10% of full scale.]
+- No new state is added. The "yield" is NOT a stored flag -- it is the per-tick HOLD
+  of cases 2/3 in 6.5, recomputed each minute from C vs T. The two booleans the
+  system already has (`_is_active`, `_needs_reset`) are sufficient.
+- Asymmetry (from 6.5): a manual DIM (case 2) auto-resumes when the curve catches
+  down; a manual BRIGHTEN (case 3) holds until a Reset or the next evening (when T
+  resets to the ceiling and the light re-enters case 1).
+- No cooldown: a held light stays at the user's setting until a Reset (6.9) or the
+  next window's engagement.
+- A mid-window manual power-ON stays manual (the user is presumably using the light);
+  it lands in case 3 (brighter than the low evening curve) and holds until a Reset.
+- Two-tier `is_active` -- this is the one behavioral change vs current code:
+  - `_is_active == on` => MANAGED. Each tick the engine either commands (case 1) or
+    holds (cases 2/3). A detected manual change MUST NOT turn `_is_active` off: the
+    per-minute driver (`fade_<light>`) only runs while `_is_active == on`, so the
+    light must stay engaged for case 2 to "catch down" and auto-resume.
+  - `_is_active == off` => DISENGAGED. Reserved for explicit user/away events only
+    (make-*-bright-again, the deactivate button, away-mode, end of night). The
+    per-minute driver correctly does nothing.
   [CHANGE vs current code: today the engine turns `_is_active` OFF on any deviation
-   beyond the deadband, which permanently stops evaluation and breaks dim auto-resume.
-   `_is_active` must mean "engaged for this evening" and only be cleared by explicit
-   disengage events (away, deactivate button, make-bright-again, end of night).]
+   beyond the deadband, which permanently stops evaluation and breaks dim auto-resume
+   (a held light is never re-examined). The fix is purely logical: on a deviation,
+   HOLD for this tick and leave `_is_active` on -- do NOT add any new entity.]
 
 ### 6.8 Booster (existing behavior to preserve)
 - When `fader_booster_is_active` is on: multiply the computed brightness by 1.2
@@ -216,10 +235,12 @@ recovers automatically (the next minute tick recomputes the absolute target).
    engagement automation turns ON `_is_active` for all managed lights and clears
    `_needs_reset` (sets it OFF). It does NOT force a snap to the curve.
 2. Each minute, `fade_<light>` evaluates lights whose `_is_active` is on, applying
-   the unified hold rule (6.5): dim when `T < C`, hold when `T >= C`, never brighten,
-   and leave off lights off.
-3. A manual BRIGHTEN above the curve yields the light (6.7) until Reset or the next
-   window. A manual DIM needs no special handling -- the hold rule covers it.
+   the three-way per-tick decision (6.5): command when on the curve (case 1), hold
+   when dimmer (case 2) or brighter (case 3) than the curve, never brighten, and
+   leave off lights off.
+3. A manual BRIGHTEN holds the light (case 3) until Reset or the next window; a
+   manual DIM holds (case 2) and auto-resumes when the curve catches down. Neither
+   turns `_is_active` off and neither stores a flag -- both are derived each tick.
 4. Reset (per-light/room) sets `_needs_reset`; the next evaluation clears it and
    snaps the light to `desired_state(now)` (in-window -> curve target, which MAY
    raise the light because it is an explicit user request; out-of-window -> OFF).
@@ -249,8 +270,10 @@ F. Light dimmer than curve at window open (dimmed earlier in the day): Fader doe
    NOT brighten it; it holds until the curve catches down, then dims. (Requires the
    engagement fix in section 11 -- engagement must not set `_needs_reset`.)
 G. Floor == 0: at/after end_time the light turns OFF (not brightness 0).
-H. Deadband: with the light on the curve, a sub-10% reported fluctuation does not
-   trigger yield, and the Fader only issues a command when |target - current| > 10%.
+H. Deadband: with the light on the curve, a sub-10% reported fluctuation stays in
+   case 1 (on track) and the Fader commands the normal step; a jump beyond 10%
+   (|current - target| > 10%) flips the light to HOLD (case 2 if dimmer, case 3 if
+   brighter) without turning `_is_active` off.
 
 ## 10. Open / configuration notes for the implementer
 - Several helpers currently hold placeholder or questionable values to verify
