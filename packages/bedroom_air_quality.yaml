@@ -44,7 +44,7 @@ automation:
         entity_id: sensor.bedroom_us_aqi
         above: 39
         for:
-          minutes: 5
+          minutes: 2
     condition:
       - condition: state
         entity_id: input_boolean.bedroom_aqi_alert_active
