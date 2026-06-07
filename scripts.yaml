@@ -509,6 +509,28 @@ art_room_all_off:
         - light.urban_outfiters
         - light.hue_color_lamp_1_2
         - light.bookshelf_lights
+  - service: input_boolean.turn_off
+    target:
+      entity_id:
+        - input_boolean.light_bookshelf_lights_is_active
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
+
+art_room_all_off_fade:
+ alias: "Art Room All Lights Off (Fade)"
+ mode: single
+ sequence:
+  - service: light.turn_off
+    target:
+      entity_id:
+        - light.west_4
+        - light.hue_color_lamp_5
+        - light.hue_color_lamp_2
+        - light.hue_color_lamp_1_3
+        - light.hue_color_lamp_3
+        - light.urban_outfiters
+        - light.hue_color_lamp_1_2
+        - light.bookshelf_lights
     data:
       transition: 3
   - service: input_boolean.turn_off

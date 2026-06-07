@@ -789,7 +789,7 @@
   mode: single
 - id: '1725215705319'
   alias: Four Button Pad 2 Automations
-  description: 'Art room remote: btn1 overhead, btn2 floor+yellow lamps, btn3 bookshelf, btn4 all'
+  description: 'Art room remote: btn1 overhead, btn2 floor+yellow lamps, btn3 bookshelf, btn4 all off/dim'
   use_blueprint:
     path: zpriddy/ts0044_zigbee_remote.yaml
     input:
@@ -813,11 +813,11 @@
       button_3_held:
       - action: script.art_room_bookshelf_off
       button_4_press:
-      - action: script.art_room_all_max
+      - action: script.art_room_all_off
       button_4_double_press:
       - action: script.art_room_all_min
       button_4_held:
-      - action: script.art_room_all_off
+      - action: script.art_room_all_off_fade
 - id: boob_lamp_schedule
   alias: Boob Lamp Schedule
   description: Turn on at global fader start time and off at global fader bed time
