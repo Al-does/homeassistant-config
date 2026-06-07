@@ -49,6 +49,11 @@
     - service: python_script.fade_out
       data:
         function_name: start_fade_in
+        entity_id: light.hue_color_lamp_1_2
+        current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+    - service: python_script.fade_out
+      data:
+        function_name: start_fade_in
         entity_id: light.bookshelf_lights
         current_time: '{{ now().strftime(''%H:%M:%S'') }}'
     - service: python_script.fade_out
@@ -98,6 +103,7 @@
     - input_boolean.light_bookshelf_lights_is_active
     - input_boolean.light_dimmable_light_1_is_active
     - input_boolean.light_urban_outfiters_is_active
+    - input_boolean.light_hue_color_lamp_1_2_is_active
     - input_boolean.light_giraffe_lamp_is_active
     - input_boolean.light_hue_color_lamp_1_is_active
     - input_boolean.light_hue_white_lamp_1_is_active
@@ -116,6 +122,7 @@
     - input_boolean.light_bookshelf_lights_needs_reset
     - input_boolean.light_dimmable_light_1_needs_reset
     - input_boolean.light_urban_outfiters_needs_reset
+    - input_boolean.light_hue_color_lamp_1_2_needs_reset
     - input_boolean.light_giraffe_lamp_needs_reset
     - input_boolean.light_hue_color_lamp_1_needs_reset
     - input_boolean.light_hue_white_lamp_1_needs_reset
@@ -252,6 +259,23 @@
     data:
       function_name: adjust_brightness
       entity_id: light.urban_outfiters
+      current_time: '{{ now().strftime(''%H:%M:%S'') }}'
+      sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
+        }}'
+- id: fade_hue_color_lamp_1_2
+  alias: call the Yellow Lamp adjust_brightness routine every minute
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: state
+    entity_id: input_boolean.light_hue_color_lamp_1_2_is_active
+    state: 'on'
+  action:
+  - service: python_script.fade_out
+    data:
+      function_name: adjust_brightness
+      entity_id: light.hue_color_lamp_1_2
       current_time: '{{ now().strftime(''%H:%M:%S'') }}'
       sunset_time: '{{ as_timestamp(states.sun.sun.attributes.next_setting) | timestamp_custom(''%H:%M:%S'')
         }}'
@@ -457,6 +481,7 @@
       - input_boolean.light_bookshelf_lights_is_active
       - input_boolean.light_dimmable_light_1_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
@@ -481,6 +506,7 @@
       - input_boolean.light_bookshelf_lights_is_active
       - input_boolean.light_dimmable_light_1_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
       - input_boolean.light_giraffe_lamp_is_active
       - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_hue_white_lamp_1_is_active
@@ -597,6 +623,7 @@
     - light.hue_color_lamp_1
     - light.kitchen_desk_lamp
     - light.urban_outfiters
+    - light.hue_color_lamp_1_2
     - light.living_room_pendants
     - light.bar_wled
     - light.window_top_shelf_wled
@@ -621,6 +648,7 @@
       - input_boolean.light_hue_color_lamp_1_is_active
       - input_boolean.light_kitchen_desk_lamp_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
       - input_boolean.light_bar_wled_is_active
       - input_boolean.light_window_top_shelf_wled_is_active
       - input_boolean.light_window_mid_shelf_wled_is_active

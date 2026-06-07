@@ -108,6 +108,18 @@ input_datetime:
     has_time: true
     initial: "12:34:56"
 
+  light_hue_color_lamp_1_2_start_time:
+    name: Yellow Lamp Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_color_lamp_1_2_end_time:
+    name: Yellow Lamp End Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
   light_giraffe_lamp_start_time:
     name: Giraffe Lamp Start Time
     has_date: false
@@ -290,6 +302,12 @@ input_datetime:
 
   light_urban_outfiters_fade_in_start_time:
     name: Urban Outfiters Fade In Start Time
+    has_date: false
+    has_time: true
+    initial: "12:34:56"
+
+  light_hue_color_lamp_1_2_fade_in_start_time:
+    name: Yellow Lamp Fade In Start Time
     has_date: false
     has_time: true
     initial: "12:34:56"
@@ -674,6 +692,14 @@ input_boolean:
     
   light_urban_outfiters_needs_reset:
     name: Urban Outfiters needs reset
+    initial: false
+
+  light_hue_color_lamp_1_2_is_active:
+    name: Yellow Lamp Active
+    initial: false
+
+  light_hue_color_lamp_1_2_needs_reset:
+    name: Yellow Lamp needs reset
     initial: false
 
   light_giraffe_lamp_is_active:

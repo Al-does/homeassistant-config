@@ -78,13 +78,16 @@ reactivate_art_room_dimmer:
      entity_id:
       - input_boolean.light_bookshelf_lights_needs_reset
       - input_boolean.light_urban_outfiters_needs_reset
+      - input_boolean.light_hue_color_lamp_1_2_needs_reset
       - input_boolean.light_bookshelf_lights_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
   - service: automation.trigger
     data:
      entity_id:
       - automation.fade_bookshelf_lights
       - automation.fade_urban_outfiters
+      - automation.fade_hue_color_lamp_1_2
       
 reactivate_dining_room_dimmer:
  alias: "Reactivate Dining Room Dimmer"
@@ -176,6 +179,7 @@ make_art_room_bright_again:
     target:
      entity_id:
       - light.urban_outfiters
+      - light.hue_color_lamp_1_2
       - light.bookshelf_lights
     data:
      brightness_pct: 100
@@ -184,6 +188,7 @@ make_art_room_bright_again:
      entity_id:
       - input_boolean.light_bookshelf_lights_is_active
       - input_boolean.light_urban_outfiters_is_active
+      - input_boolean.light_hue_color_lamp_1_2_is_active
 
 make_dining_room_bright_again:
  alias: "Make the dining Room Bright Again"
@@ -311,7 +316,9 @@ art_room_lamps_max:
       brightness: "{{ states('input_number.light_hue_color_lamp_1_2_max_brightness') | int(255) }}"
   - service: input_boolean.turn_off
     target:
-      entity_id: input_boolean.light_urban_outfiters_is_active
+      entity_id:
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
 
 art_room_lamps_min:
  alias: "Art Room Floor and Yellow Lamps Min Brightness"
@@ -329,7 +336,9 @@ art_room_lamps_min:
       brightness: "{{ states('input_number.light_hue_color_lamp_1_2_min_brightness') | int(10) }}"
   - service: input_boolean.turn_off
     target:
-      entity_id: input_boolean.light_urban_outfiters_is_active
+      entity_id:
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
 
 art_room_lamps_off:
  alias: "Art Room Floor and Yellow Lamps Off"
@@ -342,7 +351,9 @@ art_room_lamps_off:
         - light.hue_color_lamp_1_2
   - service: input_boolean.turn_off
     target:
-      entity_id: input_boolean.light_urban_outfiters_is_active
+      entity_id:
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
 
 art_room_bookshelf_max:
  alias: "Art Room Bookshelf Max Brightness"
@@ -433,6 +444,7 @@ art_room_all_min:
       entity_id:
         - input_boolean.light_bookshelf_lights_is_active
         - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
 
 art_room_all_off:
  alias: "Art Room All Lights Off"
@@ -456,3 +468,4 @@ art_room_all_off:
       entity_id:
         - input_boolean.light_bookshelf_lights_is_active
         - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
