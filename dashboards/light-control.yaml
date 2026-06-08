@@ -1,0 +1,163 @@
+title: Light Control
+views:
+  - title: Light Control
+    path: light-control
+    cards:
+      - type: markdown
+        content: "## Kitchen"
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: light.under_cabinet_lights
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.dimmable_light_1
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.hue_white_lamp_1
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.hue_white_lamp_2
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.hue_white_lamp_3
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.kitchen_shelf_wled
+            name: Kitchen Shelf WLED
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+
+      - type: markdown
+        content: "## Dining Room / Living Room"
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: light.kitchen_desk_lamp
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.living_room_pendants
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.giraffe_lamp
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.bar_wled
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.window_wled_lights
+            name: Window WLED Lights
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: switch.sengled_switch_2_switch
+            name: Boob Lamp
+            icon: mdi:lamp
+            tap_action:
+              action: toggle
+
+      - type: markdown
+        content: "## Art Room"
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: light.art_room_overhead_lights
+            name: Overhead Lights
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.bookshelf_lights
+            name: Bookshelf Lights
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.urban_outfiters
+            name: Floor Lamp
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+          - type: tile
+            entity: light.hue_color_lamp_1_2
+            name: Yellow Lamp
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info

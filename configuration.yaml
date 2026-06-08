@@ -874,3 +874,9 @@ lovelace:
       icon: mdi:circle-outline
       show_in_sidebar: true
       filename: dashboards/the-circle.yaml
+    light-control:
+      mode: yaml
+      title: Light Control
+      icon: mdi:lightbulb-group
+      show_in_sidebar: true
+      filename: dashboards/light-control.yaml
