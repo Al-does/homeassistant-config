@@ -808,9 +808,7 @@
     data:
       message: Bro, gas outside is trash. AQI high. Batten it down.
     target:
-      entity_id:
-      - device_tracker.pixel_10_pro_fold_2
-      - person.alex_vardakostas
+      entity_id: person.alex_vardakostas
   mode: single
 - id: '1725215705319'
   alias: Four Button Pad 2 Automations
@@ -945,10 +943,12 @@
       seconds: 0
   conditions: []
   actions:
-  - action: notify.mobile_app_pixel_10_pro_fold
+  - action: notify.send_message
     metadata: {}
     data:
       message: Dearest Al, CO2 is above 580 :)
+    target:
+      entity_id: person.alex_vardakostas
   mode: single
 - id: deck_seat_auto_off_90min
   alias: Deck seat - auto off after 90 min
@@ -981,7 +981,7 @@
       to: "on"
   conditions: []
   actions:
-    - action: notify.mobile_app_pixel_10_pro_fold
+    - action: notify.send_message
       data:
         title: Deck seat overheating
         message: >-
@@ -991,4 +991,6 @@
           ttl: 0
           priority: high
           vibrationPattern: [0, 500, 200, 500, 200, 500]
+      target:
+        entity_id: person.alex_vardakostas
   mode: single
