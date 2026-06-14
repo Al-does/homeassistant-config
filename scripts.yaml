@@ -248,9 +248,10 @@ al_is_tired:
  alias: "Al's Tired"
  sequence:
    - service: light.turn_on
+     target:
+      entity_id: light.master_bathroom_vanity_lights
      data:
-       entity_id: light.master_bathroom_vanity_lights
-       brightness: 26
+       brightness_pct: 5
    - service: light.turn_on
      data:
        entity_id: light.hue_color_lamp_1
@@ -270,6 +271,46 @@ al_is_tired:
        - light.living_room_pendants
        - light.bedroom_overhead
        - light.hue_ambiance_lamp_1
+       - light.bar_wled
+       - light.window_top_shelf_wled
+       - light.window_mid_shelf_wled
+       - light.kitchen_top_shelf_wled_segment_1
+       - light.kitchen_mid_shelf_wled_segment_1
+   - service: input_boolean.turn_off
+     target:
+      entity_id:
+       - input_boolean.light_under_cabinet_lights_is_active
+       - input_boolean.light_dimmable_light_1_is_active
+       - input_boolean.light_hue_white_lamp_1_is_active
+       - input_boolean.light_hue_white_lamp_2_is_active
+       - input_boolean.light_hue_white_lamp_3_is_active
+       - input_boolean.light_bookshelf_lights_is_active
+       - input_boolean.light_giraffe_lamp_is_active
+       - input_boolean.light_kitchen_desk_lamp_is_active
+       - input_boolean.light_urban_outfiters_is_active
+       - input_boolean.light_hue_color_lamp_1_2_is_active
+       - input_boolean.light_living_room_pendants_is_active
+       - input_boolean.light_bar_wled_is_active
+       - input_boolean.light_window_top_shelf_wled_is_active
+       - input_boolean.light_window_mid_shelf_wled_is_active
+       - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+       - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
+       - input_boolean.light_under_cabinet_lights_needs_reset
+       - input_boolean.light_dimmable_light_1_needs_reset
+       - input_boolean.light_hue_white_lamp_1_needs_reset
+       - input_boolean.light_hue_white_lamp_2_needs_reset
+       - input_boolean.light_hue_white_lamp_3_needs_reset
+       - input_boolean.light_bookshelf_lights_needs_reset
+       - input_boolean.light_giraffe_lamp_needs_reset
+       - input_boolean.light_kitchen_desk_lamp_needs_reset
+       - input_boolean.light_urban_outfiters_needs_reset
+       - input_boolean.light_hue_color_lamp_1_2_needs_reset
+       - input_boolean.light_living_room_pendants_needs_reset
+       - input_boolean.light_bar_wled_needs_reset
+       - input_boolean.light_window_top_shelf_wled_needs_reset
+       - input_boolean.light_window_mid_shelf_wled_needs_reset
+       - input_boolean.light_kitchen_top_shelf_wled_segment_1_needs_reset
+       - input_boolean.light_kitchen_mid_shelf_wled_segment_1_needs_reset
  mode: single
 
 reactivate_all_dimmers:
