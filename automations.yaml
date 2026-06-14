@@ -994,3 +994,58 @@
       target:
         entity_id: person.alex_vardakostas
   mode: single
+- id: pixel_watch_3_battery_low_notify
+  alias: Pixel Watch 3 - low battery alert
+  description: >-
+    Notify once when watch battery drops below 50%. Reset the latch above 55%
+    so the next dip can alert again. On startup, arm the latch if already low
+    to avoid an immediate alert for an already-depleted battery.
+  triggers:
+    - trigger: numeric_state
+      entity_id: sensor.pixel_watch_3_battery_level_3
+      below: 50
+      id: low
+    - trigger: numeric_state
+      entity_id: sensor.pixel_watch_3_battery_level_3
+      above: 55
+      id: reset
+    - trigger: homeassistant
+      event: start
+      id: startup
+  actions:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: low
+            - condition: state
+              entity_id: input_boolean.pixel_watch_3_battery_low_alert_active
+              state: "off"
+          sequence:
+            - action: notify.send_message
+              data:
+                title: Pixel Watch 3 battery low
+                message: >-
+                  Watch battery is at {{ states('sensor.pixel_watch_3_battery_level_3') }}%.
+              target:
+                entity_id: person.alex_vardakostas
+            - action: input_boolean.turn_on
+              target:
+                entity_id: input_boolean.pixel_watch_3_battery_low_alert_active
+        - conditions:
+            - condition: trigger
+              id: reset
+          sequence:
+            - action: input_boolean.turn_off
+              target:
+                entity_id: input_boolean.pixel_watch_3_battery_low_alert_active
+        - conditions:
+            - condition: trigger
+              id: startup
+            - condition: template
+              value_template: >-
+                {{ states('sensor.pixel_watch_3_battery_level_3') | float(100) < 50 }}
+          sequence:
+            - action: input_boolean.turn_on
+              target:
+                entity_id: input_boolean.pixel_watch_3_battery_low_alert_active
+  mode: single

@@ -849,6 +849,10 @@ input_boolean:
     name: Need to Reactivate Kitchen Dimmer
     initial: false
 
+  pixel_watch_3_battery_low_alert_active:
+    name: Pixel Watch 3 Low Battery Alert Active
+    initial: false
+
   guest_mode:
     name: Guest Mode Is Active
     initial: false
