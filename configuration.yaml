@@ -701,6 +701,10 @@ input_boolean:
     name: Urban Outfiters needs reset
     initial: false
 
+  light_urban_outfiters_requires_fader_color_temperature:
+    name: Floor Lamp Requires Fader Color Temperature
+    initial: true
+
   light_hue_color_lamp_1_2_is_active:
     name: Yellow Lamp Active
     initial: false
@@ -720,6 +724,10 @@ input_boolean:
   light_giraffe_lamp_needs_reset:
     name: Giraffe Lamp needs reset
     initial: false
+
+  light_giraffe_lamp_requires_fader_color_temperature:
+    name: Giraffe Lamp Requires Fader Color Temperature
+    initial: true
 
   light_hue_color_lamp_1_is_active:
     name: Al's Lamp Active
