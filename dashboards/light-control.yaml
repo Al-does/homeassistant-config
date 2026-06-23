@@ -58,6 +58,7 @@ views:
             name: Kitchen Shelf WLED
             features:
               - type: light-brightness
+              - type: light-color
             tap_action:
               action: toggle
             hold_action:
@@ -89,6 +90,7 @@ views:
             entity: light.giraffe_lamp
             features:
               - type: light-brightness
+              - type: light-color-temp
             tap_action:
               action: toggle
             hold_action:
@@ -97,6 +99,7 @@ views:
             entity: light.bar_wled
             features:
               - type: light-brightness
+              - type: light-color
             tap_action:
               action: toggle
             hold_action:
@@ -106,6 +109,7 @@ views:
             name: Window WLED Lights
             features:
               - type: light-brightness
+              - type: light-color
             tap_action:
               action: toggle
             hold_action:
@@ -147,6 +151,7 @@ views:
             name: Floor Lamp
             features:
               - type: light-brightness
+              - type: light-color-temp
             tap_action:
               action: toggle
             hold_action:
