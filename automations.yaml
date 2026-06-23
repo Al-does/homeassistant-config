@@ -8,6 +8,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.fader_enabled
+    state: 'on'
   action:
   - service: python_script.fade_out
     data:
@@ -98,6 +101,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.fader_enabled
+    state: 'on'
   action:
   - service: input_boolean.turn_on
     entity_id:
@@ -156,6 +162,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.fader_enabled
+    state: 'on'
   action:
   - service: python_script.fade_out
     data:
@@ -610,6 +619,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.fader_enabled
+    state: 'on'
   action:
   - service: script.reactivate_all_dimmers
     metadata: {}
@@ -696,6 +708,10 @@
   - platform: template
     value_template: '{{ (states(''input_datetime.global_lights_off_time'') | as_timestamp)
       + 60 <= now().timestamp() }}'
+  condition:
+  - condition: state
+    entity_id: input_boolean.fader_enabled
+    state: 'on'
   action:
   - choose:
     - conditions:
@@ -716,6 +732,19 @@
     to: 'on'
   action:
   - service: script.disengage_art_room_fader
+  mode: single
+- id: disengage_fader_when_fader_disabled
+  alias: Disengage Fader When Fader Disabled
+  description: Stop all fader-managed lights when the master fader enable switch is turned off.
+  trigger:
+  - platform: state
+    entity_id: input_boolean.fader_enabled
+    from: 'on'
+    to: 'off'
+  action:
+  - service: input_button.press
+    target:
+      entity_id: input_button.deactivate_dimmer
   mode: single
 - id: '1724961941909'
   alias: Light On Art Room if Occupied

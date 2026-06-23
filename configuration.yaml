@@ -28,13 +28,13 @@ input_datetime:
     name: Global Fader Bed Time
     has_date: false
     has_time: true
-    initial: "22:30:00"
+    initial: "22:15:00"
 
   global_lights_off_time:
     name: Global Lights Off Time
     has_date: false
     has_time: true
-    initial: "23:40:00"
+    initial: "23:15:00"
 
   global_morning_time:
     name: Global Morning Time
@@ -864,6 +864,10 @@ input_boolean:
   guest_mode:
     name: Guest Mode Is Active
     initial: false
+
+  fader_enabled:
+    name: Fader Enabled
+    initial: true
 
 input_button:
   deactivate_dimmer:

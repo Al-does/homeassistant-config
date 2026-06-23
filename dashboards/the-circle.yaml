@@ -113,6 +113,7 @@ views:
           - entity: input_datetime.global_fader_end_time
           - entity: input_datetime.global_lights_off_time
           - entity: input_boolean.guest_mode
+          - entity: input_boolean.fader_enabled
           - entity: input_boolean.fader_booster_is_active
           - entity: input_boolean.fader_peak_reducer_is_active
       - type: horizontal-stack

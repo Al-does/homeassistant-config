@@ -16,6 +16,10 @@ def get_state(entity, default=None):
     return state.state
 
 
+def fader_is_enabled():
+    return get_state("input_boolean.fader_enabled", "on") == "on"
+
+
 def time_to_minutes(time_str):
     h, m, s = time_str.split(":")
     return int(h) * 60 + int(m) + int(s) / 60
@@ -289,6 +293,9 @@ def apply_decision(entity_id, decision, context):
 
 
 def warm_configured_color_temperature():
+    if not fader_is_enabled():
+        return
+
     kelvin = get_fader_color_temperature_kelvin()
     if kelvin is None:
         logger.info("Fader color temperature skipped; {} is not set.".format(FADER_COLOR_TEMPERATURE_ENTITY))
@@ -318,6 +325,9 @@ def warm_configured_color_temperature():
 
 
 def adjust_brightness(entity_id, current_time, sunset_time):
+    if not fader_is_enabled():
+        return
+
     fader_inputs = get_fader_inputs(entity_id, current_time)
     if fader_inputs is None:
         return
@@ -355,6 +365,9 @@ def minutes_after_start(current_time, fade_in_start_time, fader_start_time):
 
 
 def start_fade_in(entity_id, current_time):
+    if not fader_is_enabled():
+        return
+
     fader_inputs = get_fader_inputs(entity_id, current_time)
     if fader_inputs is None:
         return
