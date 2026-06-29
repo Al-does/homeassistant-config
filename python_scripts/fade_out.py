@@ -208,11 +208,13 @@ def decide_action(entity_id, light_state, current_brightness, target_info, needs
     if target is None:
         return {"action": "hold", "brightness": current_brightness, "reason": target_info["reason"]}
 
-    if target <= 0:
-        return {"action": "turn_off", "brightness": 0, "reason": target_info["reason"]}
-
     if light_state is None or light_state.state != "on":
         return {"action": "hold", "brightness": current_brightness, "reason": "light_off"}
+
+    if target <= 0:
+        if current_brightness > DEADBAND:
+            return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
+        return {"action": "turn_off", "brightness": 0, "reason": target_info["reason"]}
 
     if period == "fade_in":
         if current_brightness < target - DEADBAND:
