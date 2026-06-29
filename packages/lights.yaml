@@ -28,8 +28,6 @@ light:
       - light.window_top_shelf_wled
       - light.window_mid_shelf_wled
 
-  # WLED segment index 1 ("Every third", grp=1/spc=3) on each strip.
-  # Boot preset 1 ("Boot") on both devices restores this layout after power loss.
   - platform: group
     name: Kitchen Shelf WLED
     entities:

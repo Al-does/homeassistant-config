@@ -1078,26 +1078,3 @@
               target:
                 entity_id: input_boolean.pixel_watch_3_battery_low_alert_active
   mode: single
-- id: restore_kitchen_shelf_wled_boot_preset
-  alias: Restore Kitchen Shelf WLED Boot Preset
-  description: >-
-    Re-apply WLED preset "Boot" so segment 1 ("Every third") is available to
-    light.kitchen_shelf_wled after power loss or HA restart.
-  trigger:
-  - platform: homeassistant
-    event: start
-  - platform: state
-    entity_id:
-    - light.kitchen_top_shelf_wled_segment_1
-    - light.kitchen_mid_shelf_wled_segment_1
-    from: unavailable
-  action:
-  - delay: 00:00:30
-  - action: select.select_option
-    target:
-      entity_id:
-      - select.kitchen_top_shelf_wled_preset
-      - select.kitchen_mid_shelf_wled_preset
-    data:
-      option: Boot
-  mode: single
