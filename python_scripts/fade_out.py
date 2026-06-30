@@ -194,6 +194,16 @@ def calculate_target(current_time, fade_in_start_time, start_time, end_time, max
     return {"period": "daytime", "target": None, "reason": "passive"}
 
 
+def should_passive_after_bedtime(target_info, needs_reset):
+    if needs_reset == "on":
+        return False
+    return target_info["period"] in ("post_fade", "overnight")
+
+
+def passive_after_bedtime_target():
+    return {"period": "post_bedtime", "target": None, "reason": "post_bedtime_passive"}
+
+
 def decide_action(entity_id, light_state, current_brightness, target_info, needs_reset):
     target = target_info["target"]
     period = target_info["period"]
@@ -348,6 +358,8 @@ def adjust_brightness(entity_id, current_time, sunset_time):
     current_brightness = get_current_brightness(light_state)
 
     target_info = calculate_target(current_time, fader_inputs["fade_in_start_time"], fader_inputs["start_time"], fader_inputs["end_time"], fader_inputs["max_brightness"], fader_inputs["min_brightness"])
+    if should_passive_after_bedtime(target_info, needs_reset):
+        target_info = passive_after_bedtime_target()
     decision = decide_action(entity_id, light_state, current_brightness, target_info, needs_reset)
 
     logger.info("{} fader period={}, target={}, current={}, needs_reset={}, decision={}, reason={}".format(entity_id, target_info["period"], target_info["target"], current_brightness, needs_reset, decision["action"], decision["reason"]))
