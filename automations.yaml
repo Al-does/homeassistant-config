@@ -703,25 +703,36 @@
     data:
       hvac_mode: off
 - id: run_scripts_after_global_lights_off_time
-  alias: Run Scripts After Global Lights Off Time
+  alias: Turn Off Fader Lights at Global Lights Off Time
+  description: Turn off every fader-managed light exactly at the configured lights-off time.
   trigger:
-  - platform: template
-    value_template: '{{ (states(''input_datetime.global_lights_off_time'') | as_timestamp)
-      + 60 <= now().timestamp() }}'
+  - platform: time
+    at: input_datetime.global_lights_off_time
   condition:
   - condition: state
     entity_id: input_boolean.fader_enabled
     state: 'on'
   action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'off'
-      sequence:
-      - service: script.reactivate_art_room_dimmer
-  - service: script.reactivate_kitchen_dimmer
-  - service: script.reactivate_dining_room_dimmer
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.bookshelf_lights
+      - light.urban_outfiters
+      - light.hue_color_lamp_1_2
+      - light.under_cabinet_lights
+      - light.dimmable_light_1
+      - light.hue_white_lamp_1
+      - light.hue_white_lamp_2
+      - light.hue_white_lamp_3
+      - light.giraffe_lamp
+      - light.kitchen_desk_lamp
+      - light.living_room_pendants
+      - light.bar_wled
+      - light.window_top_shelf_wled
+      - light.window_mid_shelf_wled
+      - light.kitchen_top_shelf_wled_segment_1
+      - light.kitchen_mid_shelf_wled_segment_1
+  mode: single
 - id: disengage_art_room_fader_when_guest_mode_turns_on
   alias: Disengage Art Room Fader When Guest Mode Turns On
   description: Stop the art room fader from managing lights when guest mode is enabled.
