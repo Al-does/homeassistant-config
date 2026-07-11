@@ -869,6 +869,10 @@ input_boolean:
     name: Fader Enabled
     initial: true
 
+  the_circle:
+    name: The Circle
+    initial: true
+
 input_button:
   deactivate_dimmer:
     name: Deactivate Dimmer

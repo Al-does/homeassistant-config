@@ -771,6 +771,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.the_circle
+    state: 'on'
   action:
   - service: script.make_art_room_bright_again
     data: {}
@@ -790,6 +793,9 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.the_circle
+    state: 'on'
   action:
   - service: script.reactivate_art_room_dimmer
     data: {}
