@@ -69,6 +69,14 @@ views:
                 tap_action:
                   action: call-service
                   service: script.reactivate_dining_room_dimmer
+          - type: tile
+            entity: light.kitchen_desk_lamp
+            features:
+              - type: light-brightness
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
       - type: vertical-stack
         cards:
           - type: markdown
