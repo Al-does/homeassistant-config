@@ -60,7 +60,8 @@ demand.
   across its fade window, using cubic easing.
 - Treat human on/off and brightness actions as authoritative; never fight them.
 - Detect manual brightness changes and yield (hold), with an asymmetric auto-resume
-  rule (see 6.5/6.7), derived live per tick -- no new per-light state.
+  rule and prior-target matching (see 6.5/6.7), derived live per tick -- no new
+  per-light state.
 - Provide per-light / per-room "Reset to Schedule" that re-engages the Fader.
 - Be self-healing: correct behavior after HA restarts, missed ticks, or mid-window
   changes, deriving all decisions from persisted helpers + current time + the
@@ -83,11 +84,12 @@ demand.
   A floor of 0 means "off" at the bottom (see 6.6).
 - Window: the per-light fade interval [start_time, end_time]; may cross midnight.
 - Curve: cubic-eased interpolation from ceiling to floor across the window.
-- Deadband: detection threshold (10% of full 0-255 scale, ~26 levels). A light whose
-  live brightness is within D of the curve is "on track" and the Fader commands the
-  next (small) step; a deviation beyond D means a human changed it and the Fader
-  HOLDS. It is a manual-change detection threshold, NOT a command-suppression
-  threshold (normal per-minute steps are far smaller than D and are still commanded).
+- Tracking envelope: the brightness segment between the current target and the
+  prior one-minute target, expanded by a one-level reporting tolerance for device
+  quantization. This is asymmetric around the current target: it is only one level
+  wide opposite the curve's motion and exactly as wide as the legitimate step in
+  the direction from which the curve came. The target from two ticks ago is also
+  accepted within one level as a discrete fallback for one missed evaluation.
 - needs_reset: per-light flag meaning "snap this light back onto the schedule on
   the next evaluation."
 - is_active: per-light two-tier flag. ON = the Fader is MANAGING this light this
@@ -149,7 +151,9 @@ For stem `<f>`:
   the sandbox.
 
 ### 6.5 Brightness curve and evaluation
-For each managed light, every minute (and immediately on reset), compute a target:
+For each managed light, every minute (and immediately on reset), align the supplied
+current time to the start of its minute and compute a target. Minute alignment keeps
+an immediate reset on the same target grid as the next scheduled evaluation.
 - If `fade_in_start <= now < start` (fade-in window):
     progress = (now - fade_in_start) / (start - fade_in_start)
     eased    = cubic_ease_in_out(progress)
@@ -169,19 +173,23 @@ For each managed light, every minute (and immediately on reset), compute a targe
   on only inside that light's small start grace window. Regular per-minute
   evaluation will not turn an off light on during fade-in, so a user power-off is
   not fought.
-- Per-tick decision (NO new state -- derived live from current brightness C vs target
-  T, with deadband D = 10% of full scale, ~26/255). Because the per-minute fade step
-  is tiny (a few levels out of 255, far smaller than D), a light the Fader is driving
-  normally sits within D of the curve; only a human jump exceeds D. Each tick, for a
-  managed (`_is_active == on`) light that is on:
-    1. `|T - C| <= D` (on the curve):      command T -- the normal curve step.
-    2. `C < T - D` (dimmer than the curve): HOLD, command nothing. Covers a manual
-       dim AND a daytime-dimmed / fade-in-handoff light at engagement. As the
-       descending curve reaches C (re-entering case 1), dimming resumes automatically.
-    3. `C > T + D` (brighter than the curve): HOLD, command nothing. A manual
-       brighten; the Fader does not pull it back down. It stays in case 3 as the
-       curve keeps dropping, until a Reset or the next evening (when T resets to the
-       ceiling and C falls back within D, re-entering case 1).
+- Per-tick decision (NO new state -- derived live from current brightness C and the
+  schedule). Let T be the current target, P1 the prior one-minute target, P2 the
+  target two minutes ago, and R the one-level reporting tolerance. A brightness is
+  on track when it is within `[min(T,P1)-R, max(T,P1)+R]` or within R of P2. The
+  T-to-P1 segment lets a manually dimmed or already-bright light resume when the
+  discrete curve crosses its level. P2 tolerates one missed evaluation without
+  widening that segment by another full curve step. Each tick, for a managed
+  (`_is_active == on`) light that is on:
+    1. C is on track: command T -- the normal curve step.
+    2. `C < T` and not expected (dimmer than the curve): HOLD, command nothing.
+       Covers a manual dim AND a daytime-dimmed / fade-in-handoff light at
+       engagement. As the descending curve reaches C (re-entering case 1), dimming
+       resumes automatically.
+    3. `C > T` and not expected (brighter than the curve): HOLD, command nothing.
+       A manual brighten; the Fader does not pull it back down. It stays in case 3
+       as the curve keeps dropping, until a Reset or the next evening (when T
+       resets to the ceiling and C re-enters case 1).
   This single rule IS the entire "never-brighten + asymmetric resume" behavior. The
   asymmetry (a manual dim auto-resumes; a manual brighten holds until reset) falls out
   of cases 2 vs 3 -- case 2 self-heals into case 1 while case 3 stays put -- so NO
@@ -189,7 +197,7 @@ For each managed light, every minute (and immediately on reset), compute a targe
   "managed and currently holding (case 2 or 3)", recomputed each tick, never stored.
   (Commands are issued every tick while on track; an implementation may skip
   re-sending a value the light is already at, e.g. while holding at the floor, to
-  avoid redundant calls -- a tiny epsilon, unrelated to the 10% detection deadband.)
+  avoid redundant calls -- a tiny epsilon, separate from expected-target matching.)
 - Fade-in never dims a light down to meet the rising curve. If live brightness is
   already above the fade-in target, the engine holds until the curve catches up.
 
@@ -199,10 +207,12 @@ overnight branch), the Fader must turn the light OFF via `light.turn_off`, never
 issue `brightness: 0`.
 
 ### 6.7 Manual override semantics (no new state) and the two-tier `is_active`
-- Detection uses the same deadband as 6.5: a light within D of the curve is "on
-  track"; a deviation beyond D (or the light turned off) is a human change.
-  [CHANGE vs current code: today the threshold is +/-20% (0.8x/1.2x, relative);
-   target is 10% of full scale.]
+- Detection uses the same asymmetric tracking envelope as 6.5. A light in the
+  current-to-prior target segment, or within one level of the two-ticks-ago
+  fallback, is "on track"; any other deviation (or the light turned off) is a
+  human change. During fade-in, the no-dimming rule takes precedence: any live
+  brightness above the current rising target holds, even if it is only one level
+  above the envelope.
 - No new state is added. The "yield" is NOT a stored flag -- it is the per-tick HOLD
   of cases 2/3 in 6.5, recomputed each minute from C vs T. The two booleans the
   system already has (`_is_active`, `_needs_reset`) are sufficient.
@@ -222,7 +232,7 @@ issue `brightness: 0`.
     (make-*-bright-again, the deactivate button, away-mode, end of night). The
     per-minute driver correctly does nothing.
   [CHANGE vs current code: today the engine turns `_is_active` OFF on any deviation
-   beyond the deadband, which permanently stops evaluation and breaks dim auto-resume
+   from the expected curve, which permanently stops evaluation and breaks dim auto-resume
    (a held light is never re-examined). The fix is purely logical: on a deviation,
    HOLD for this tick and leave `_is_active` on -- do NOT add any new entity.]
 
@@ -287,7 +297,7 @@ recovers automatically (the next minute tick recomputes the absolute target).
 
 ## 8. Logging & error handling
 - Log per-evaluation detail at debug/info: resolved start/end, max/min, target,
-  deadband decision, and override/needs_reset status.
+  expected targets, decision, and override/needs_reset status.
 - Wrap the final `light.turn_on`/`light.turn_off` in defensive handling; on a
   non-numeric brightness, log an error including entity_id and inputs, and return
   without commanding the light. Never raise out of the script.
@@ -308,10 +318,13 @@ F. Light dimmer than curve at window open (dimmed earlier in the day): Fader doe
    NOT brighten it; it holds until the curve catches down, then dims. (Requires the
    engagement fix in section 11 -- engagement must not set `_needs_reset`.)
 G. Floor == 0: at/after end_time the light turns OFF (not brightness 0).
-H. Deadband: with the light on the curve, a sub-10% reported fluctuation stays in
-   case 1 (on track) and the Fader commands the normal step; a jump beyond 10%
-   (|current - target| > 10%) flips the light to HOLD (case 2 if dimmer, case 3 if
-   brighter) without turning `_is_active` off.
+H. Tracking envelope: a light reporting anywhere between the current and prior
+   one-minute targets, plus or minus one brightness level, stays in case 1 and
+   advances normally. The target from two ticks ago is accepted only within one
+   level. A value two levels outside both regions flips to HOLD (case 2 if dimmer,
+   case 3 if brighter) without turning `_is_active` off. This must pass for both a
+   60-minute 255-to-0 fade-out (13-level maximum one-minute step) and a 20-minute
+   0-to-255 fade-in (35-level maximum one-minute step).
 
 ## 10. Open / configuration notes for the implementer
 - Several helpers currently hold placeholder or questionable values to verify

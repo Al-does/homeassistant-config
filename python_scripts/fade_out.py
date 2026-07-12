@@ -1,4 +1,6 @@
-DEADBAND = 26
+BRIGHTNESS_REPORT_TOLERANCE = 1
+FADER_UPDATE_INTERVAL_MINUTES = 1
+EXPECTED_TARGET_LOOKBACK_TICKS = 2
 FADE_IN_START_GRACE_MINUTES = 2
 MINUTES_PER_DAY = 24 * 60
 SENTINEL_TIME = "12:34:56"
@@ -23,6 +25,21 @@ def fader_is_enabled():
 def time_to_minutes(time_str):
     h, m, s = time_str.split(":")
     return int(h) * 60 + int(m) + int(s) / 60
+
+
+def minute_aligned_time(time_str):
+    h, m, s = time_str.split(":")
+    return "{:02d}:{:02d}:00".format(int(h), int(m))
+
+
+def shift_time_minutes(time_str, delta_minutes):
+    h, m, s = time_str.split(":")
+    total_seconds = int(h) * 60 * 60 + int(m) * 60 + int(float(s))
+    total_seconds = (total_seconds + delta_minutes * 60) % (MINUTES_PER_DAY * 60)
+    shifted_hours = total_seconds // (60 * 60)
+    shifted_minutes = (total_seconds % (60 * 60)) // 60
+    shifted_seconds = total_seconds % 60
+    return "{:02d}:{:02d}:{:02d}".format(shifted_hours, shifted_minutes, shifted_seconds)
 
 
 def safe_int(value, default=None):
@@ -204,7 +221,27 @@ def passive_after_bedtime_target():
     return {"period": "post_bedtime", "target": None, "reason": "post_bedtime_passive"}
 
 
-def decide_action(entity_id, light_state, current_brightness, target_info, needs_reset):
+def brightness_is_on_track(current_brightness, expected_targets):
+    if len(expected_targets) == 0:
+        return False
+
+    current_target = expected_targets[0]
+    previous_target = current_target
+    if len(expected_targets) > 1:
+        previous_target = expected_targets[1]
+
+    lower_bound = min(current_target, previous_target) - BRIGHTNESS_REPORT_TOLERANCE
+    upper_bound = max(current_target, previous_target) + BRIGHTNESS_REPORT_TOLERANCE
+    if lower_bound <= current_brightness <= upper_bound:
+        return True
+
+    for expected_target in expected_targets[2:]:
+        if expected_target - BRIGHTNESS_REPORT_TOLERANCE <= current_brightness <= expected_target + BRIGHTNESS_REPORT_TOLERANCE:
+            return True
+    return False
+
+
+def decide_action(entity_id, light_state, current_brightness, target_info, expected_targets, needs_reset):
     target = target_info["target"]
     period = target_info["period"]
 
@@ -222,24 +259,40 @@ def decide_action(entity_id, light_state, current_brightness, target_info, needs
         return {"action": "hold", "brightness": current_brightness, "reason": "light_off"}
 
     if target <= 0:
-        if current_brightness > DEADBAND:
-            return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
-        return {"action": "turn_off", "brightness": 0, "reason": target_info["reason"]}
-
-    if period == "fade_in":
-        if current_brightness < target - DEADBAND:
-            return {"action": "hold", "brightness": current_brightness, "reason": "manual_dim_hold"}
-        if current_brightness > target:
-            return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
-        return {"action": "turn_on", "brightness": target, "reason": "on_fade_in_curve"}
-
-    if current_brightness < target - DEADBAND:
-        return {"action": "hold", "brightness": current_brightness, "reason": "manual_dim_hold"}
-
-    if current_brightness > target + DEADBAND:
+        if brightness_is_on_track(current_brightness, expected_targets):
+            return {"action": "turn_off", "brightness": 0, "reason": target_info["reason"]}
         return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
 
-    return {"action": "turn_on", "brightness": target, "reason": "on_curve"}
+    if period == "fade_in":
+        if current_brightness > target:
+            return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
+        if brightness_is_on_track(current_brightness, expected_targets):
+            return {"action": "turn_on", "brightness": target, "reason": "on_fade_in_curve"}
+        return {"action": "hold", "brightness": current_brightness, "reason": "manual_dim_hold"}
+
+    if brightness_is_on_track(current_brightness, expected_targets):
+        return {"action": "turn_on", "brightness": target, "reason": "on_curve"}
+
+    if current_brightness < target:
+        return {"action": "hold", "brightness": current_brightness, "reason": "manual_dim_hold"}
+
+    return {"action": "hold", "brightness": current_brightness, "reason": "manual_bright_hold"}
+
+
+def expected_scheduled_targets(current_time, fader_inputs, current_target_info):
+    expected_targets = []
+    current_target = current_target_info["target"]
+    if current_target is not None:
+        expected_targets.append(current_target)
+
+    for ticks_ago in range(1, EXPECTED_TARGET_LOOKBACK_TICKS + 1):
+        previous_time = shift_time_minutes(current_time, -FADER_UPDATE_INTERVAL_MINUTES * ticks_ago)
+        previous_target_info = calculate_target(previous_time, fader_inputs["fade_in_start_time"], fader_inputs["start_time"], fader_inputs["end_time"], fader_inputs["max_brightness"], fader_inputs["min_brightness"])
+        previous_target = previous_target_info["target"]
+        if previous_target is not None:
+            expected_targets.append(previous_target)
+
+    return expected_targets
 
 
 def get_fader_inputs(entity_id, current_time):
@@ -340,6 +393,7 @@ def adjust_brightness(entity_id, current_time, sunset_time):
     if not fader_is_enabled():
         return
 
+    current_time = minute_aligned_time(current_time)
     fader_inputs = get_fader_inputs(entity_id, current_time)
     if fader_inputs is None:
         return
@@ -360,9 +414,10 @@ def adjust_brightness(entity_id, current_time, sunset_time):
     target_info = calculate_target(current_time, fader_inputs["fade_in_start_time"], fader_inputs["start_time"], fader_inputs["end_time"], fader_inputs["max_brightness"], fader_inputs["min_brightness"])
     if should_passive_after_bedtime(target_info, needs_reset):
         target_info = passive_after_bedtime_target()
-    decision = decide_action(entity_id, light_state, current_brightness, target_info, needs_reset)
+    expected_targets = expected_scheduled_targets(current_time, fader_inputs, target_info)
+    decision = decide_action(entity_id, light_state, current_brightness, target_info, expected_targets, needs_reset)
 
-    logger.info("{} fader period={}, target={}, current={}, needs_reset={}, decision={}, reason={}".format(entity_id, target_info["period"], target_info["target"], current_brightness, needs_reset, decision["action"], decision["reason"]))
+    logger.info("{} fader period={}, target={}, expected={}, current={}, needs_reset={}, decision={}, reason={}".format(entity_id, target_info["period"], target_info["target"], expected_targets, current_brightness, needs_reset, decision["action"], decision["reason"]))
 
     if needs_reset == "on":
         hass.services.call("input_boolean", "turn_on", {"entity_id": input_boolean_entity})
@@ -382,6 +437,7 @@ def start_fade_in(entity_id, current_time):
     if not fader_is_enabled():
         return
 
+    current_time = minute_aligned_time(current_time)
     fader_inputs = get_fader_inputs(entity_id, current_time)
     if fader_inputs is None:
         return
