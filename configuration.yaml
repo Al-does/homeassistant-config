@@ -870,7 +870,7 @@ input_boolean:
     initial: true
 
   the_circle:
-    name: The Circle
+    name: Art Room Presence
     initial: true
 
 input_button:
