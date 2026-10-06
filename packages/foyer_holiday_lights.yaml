@@ -17,7 +17,7 @@ script:
               sf_pride_weekend
             {% elif month == 7 and day == 4 %}
               independence_day
-            {% elif month == 10 and day == 31 %}
+            {% elif month == 10 %}
               halloween
             {% elif month == 11 and 22 <= day <= 28 and weekday == 3 %}
               thanksgiving
