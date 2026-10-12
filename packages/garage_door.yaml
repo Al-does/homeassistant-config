@@ -1,0 +1,29 @@
+# Garage door alerts.
+
+automation:
+  - id: garage_door_left_open_notify
+    alias: Garage door left open - notify
+    description: >-
+      Buzz Alex and Anna's phones when the garage door stays open
+      for more than 5 minutes.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.garage_door_sensor
+        to: "on"
+        for:
+          minutes: 5
+    action:
+      - service: notify.send_message
+        data:
+          title: Garage door left open
+          message: >-
+            The garage door has been open for more than 5 minutes.
+          data:
+            ttl: 0
+            priority: high
+            vibrationPattern: [0, 500, 200, 500, 200, 500]
+        target:
+          entity_id:
+            - person.alex_vardakostas
+            - person.anna_tong
