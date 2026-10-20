@@ -128,8 +128,10 @@ curl -X DELETE -H "Authorization: Bearer $HOMEASSISTANT_TOKEN" "$HOMEASSISTANT_U
 ```
 
 Orphaned entities whose config entry is already gone (`restored`/`unavailable`
-with no entry) can't be removed this way — delete them in
-**Settings → Devices & Services → Entities**.
+with no entry, possibly pointing at a device that no longer exists) can be
+deleted in **Settings → Devices & Services → Entities**, or via the websocket
+API the same token authenticates to: `config/entity_registry/remove` with
+`{"entity_id": "..."}` at `ws://<host>:8123/api/websocket`.
 
 ## Troubleshooting
 
