@@ -114,6 +114,23 @@ Expected response: `{"message":"API running."}`
 - **Token safety:** Never commit tokens to Git. Use `.env.mcp` or `secrets.yaml` (both gitignored).
 - **Entity access:** Restrict domains through HA user permissions where possible.
 
+## Useful: deleting stale devices via the REST API
+
+The MCP tool surface has no entity/device registry delete, but the same
+credentials in `.env.mcp` work against the HA REST API directly:
+
+```bash
+source .env.mcp
+# List config entries (find the stale one by title/state)
+curl -H "Authorization: Bearer $HOMEASSISTANT_TOKEN" "$HOMEASSISTANT_URL/api/config/config_entries/entry"
+# Delete a stale entry — removes its device + entities, no restart for most integrations
+curl -X DELETE -H "Authorization: Bearer $HOMEASSISTANT_TOKEN" "$HOMEASSISTANT_URL/api/config/config_entries/entry/<entry_id>"
+```
+
+Orphaned entities whose config entry is already gone (`restored`/`unavailable`
+with no entry) can't be removed this way — delete them in
+**Settings → Devices & Services → Entities**.
+
 ## Troubleshooting
 
 - **Use the Python package:** Run `uvx --from ha-mcp ha-mcp`, not the old npm `ha-mcp` package (1 tool vs ~86 tools).
