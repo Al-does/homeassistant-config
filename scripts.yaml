@@ -313,6 +313,22 @@ al_is_tired:
        - input_boolean.light_kitchen_mid_shelf_wled_segment_1_needs_reset
  mode: single
 
+als_going_to_bed:
+ alias: "Al's Going to Bed"
+ description: "Turns off the lights Al's Tired leaves on, then runs the west-half curtain automation after 20 minutes"
+ sequence:
+   - service: light.turn_off
+     target:
+      entity_id:
+       - light.master_bathroom_vanity_lights
+       - light.hue_color_lamp_1
+   - delay:
+       minutes: 20
+   - service: automation.trigger
+     target:
+      entity_id: automation.bedroom_curtains_west_half_east_open
+ mode: single
+
 reactivate_all_dimmers:
  alias: "Reactivate All Dimmers"
  sequence:
