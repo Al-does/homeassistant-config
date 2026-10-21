@@ -578,3 +578,52 @@ art_room_all_off_fade:
         - input_boolean.light_bookshelf_lights_is_active
         - input_boolean.light_urban_outfiters_is_active
         - input_boolean.light_hue_color_lamp_1_2_is_active
+
+all_rooms_off:
+ alias: "All Rooms Lights Off"
+ description: "Turns off all kitchen, dining room, and art room lights and disengages the fader"
+ mode: single
+ sequence:
+  - service: light.turn_off
+    target:
+      entity_id:
+        - light.under_cabinet_lights
+        - light.dimmable_light_1
+        - light.hue_white_lamp_1
+        - light.hue_white_lamp_2
+        - light.hue_white_lamp_3
+        - light.kitchen_desk_lamp
+        - light.living_room_pendants
+        - light.giraffe_lamp
+        - light.bar_wled
+        - light.window_top_shelf_wled
+        - light.window_mid_shelf_wled
+        - light.kitchen_top_shelf_wled_segment_1
+        - light.kitchen_mid_shelf_wled_segment_1
+        - light.bookshelf_lights
+        - light.urban_outfiters
+        - light.hue_color_lamp_1_2
+        - light.west_4
+        - light.hue_color_lamp_5
+        - light.hue_color_lamp_2
+        - light.hue_color_lamp_1_3
+        - light.hue_color_lamp_3
+  - service: input_boolean.turn_off
+    target:
+      entity_id:
+        - input_boolean.light_under_cabinet_lights_is_active
+        - input_boolean.light_dimmable_light_1_is_active
+        - input_boolean.light_hue_white_lamp_1_is_active
+        - input_boolean.light_hue_white_lamp_2_is_active
+        - input_boolean.light_hue_white_lamp_3_is_active
+        - input_boolean.light_kitchen_desk_lamp_is_active
+        - input_boolean.light_living_room_pendants_is_active
+        - input_boolean.light_giraffe_lamp_is_active
+        - input_boolean.light_bar_wled_is_active
+        - input_boolean.light_window_top_shelf_wled_is_active
+        - input_boolean.light_window_mid_shelf_wled_is_active
+        - input_boolean.light_kitchen_top_shelf_wled_segment_1_is_active
+        - input_boolean.light_kitchen_mid_shelf_wled_segment_1_is_active
+        - input_boolean.light_bookshelf_lights_is_active
+        - input_boolean.light_urban_outfiters_is_active
+        - input_boolean.light_hue_color_lamp_1_2_is_active
