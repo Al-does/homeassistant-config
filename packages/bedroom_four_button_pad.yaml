@@ -16,28 +16,14 @@ automation:
       input:
         ts0044_device: fd0374baa99238f40caab19531deb949
         button_1_press:
-          - action: cover.open_cover
-            target:
-              entity_id:
-                - cover.master_bedroom_east_curtain
-                - cover.master_bedroom_west_curtain
+          - action: script.bedroom_curtains_open
+            data: {}
         button_1_double_press:
-          - action: cover.close_cover
-            target:
-              entity_id:
-                - cover.master_bedroom_east_curtain
-                - cover.master_bedroom_west_curtain
+          - action: script.bedroom_curtains_close
+            data: {}
         button_1_held:
-          - action: cover.set_cover_position
-            target:
-              entity_id: cover.master_bedroom_west_curtain
-            data:
-              position: 50
-          - action: cover.set_cover_position
-            target:
-              entity_id: cover.master_bedroom_east_curtain
-            data:
-              position: 100
+          - action: script.bedroom_curtains_west_half
+            data: {}
         button_2_press:
           - action: light.turn_on
             target:

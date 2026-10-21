@@ -311,9 +311,9 @@ al_is_tired:
        - input_boolean.light_window_mid_shelf_wled_needs_reset
        - input_boolean.light_kitchen_top_shelf_wled_segment_1_needs_reset
        - input_boolean.light_kitchen_mid_shelf_wled_segment_1_needs_reset
-   - service: automation.trigger
+   - service: script.turn_on
      target:
-      entity_id: automation.bedroom_curtains_west_half_east_open
+      entity_id: script.bedroom_curtains_west_half
  mode: single
 
 als_going_to_bed:
@@ -327,9 +327,9 @@ als_going_to_bed:
        - light.hue_color_lamp_1
    - delay:
        minutes: 20
-   - service: automation.trigger
+   - service: script.turn_on
      target:
-      entity_id: automation.bedroom_curtains_close_fully
+      entity_id: script.bedroom_curtains_close
  mode: single
 
 reactivate_all_dimmers:

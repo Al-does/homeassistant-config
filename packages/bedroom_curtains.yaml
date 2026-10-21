@@ -1,35 +1,32 @@
 # Master bedroom SwitchBot curtains.
-# No triggers: these run manually/from dashboards; Four Button Pad #4 maps
-# button 1 to the same actions in packages/bedroom_four_button_pad.yaml.
+# Called by Four Button Pad #4 (packages/bedroom_four_button_pad.yaml),
+# the Al's Tired / Al's Going to Bed scripts, and dashboards.
 
-automation:
-  - id: bedroom_curtains_open
+script:
+  bedroom_curtains_open:
     alias: Bedroom curtains - open fully
     mode: single
-    trigger: []
-    action:
+    sequence:
       - service: cover.open_cover
         target:
           entity_id:
             - cover.master_bedroom_east_curtain
             - cover.master_bedroom_west_curtain
 
-  - id: bedroom_curtains_close
+  bedroom_curtains_close:
     alias: Bedroom curtains - close fully
     mode: single
-    trigger: []
-    action:
+    sequence:
       - service: cover.close_cover
         target:
           entity_id:
             - cover.master_bedroom_east_curtain
             - cover.master_bedroom_west_curtain
 
-  - id: bedroom_curtains_west_half
+  bedroom_curtains_west_half:
     alias: Bedroom curtains - west half, east open
     mode: single
-    trigger: []
-    action:
+    sequence:
       - service: cover.set_cover_position
         target:
           entity_id: cover.master_bedroom_west_curtain
