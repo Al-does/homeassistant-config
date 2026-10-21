@@ -1,6 +1,6 @@
 # Master bedroom SwitchBot curtains.
-# Triggers are intentionally empty for now — add the physical button
-# trigger to each automation once the button is chosen.
+# No triggers: these run manually/from dashboards; Four Button Pad #4 maps
+# button 1 to the same actions in packages/bedroom_four_button_pad.yaml.
 
 automation:
   - id: bedroom_curtains_open
