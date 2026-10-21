@@ -1,0 +1,42 @@
+# Master bedroom SwitchBot curtains.
+# Triggers are intentionally empty for now — add the physical button
+# trigger to each automation once the button is chosen.
+
+automation:
+  - id: bedroom_curtains_open
+    alias: Bedroom curtains - open fully
+    mode: single
+    trigger: []
+    action:
+      - service: cover.open_cover
+        target:
+          entity_id:
+            - cover.master_bedroom_east_curtain
+            - cover.master_bedroom_west_curtain
+
+  - id: bedroom_curtains_close
+    alias: Bedroom curtains - close fully
+    mode: single
+    trigger: []
+    action:
+      - service: cover.close_cover
+        target:
+          entity_id:
+            - cover.master_bedroom_east_curtain
+            - cover.master_bedroom_west_curtain
+
+  - id: bedroom_curtains_west_half
+    alias: Bedroom curtains - west half, east open
+    mode: single
+    trigger: []
+    action:
+      - service: cover.set_cover_position
+        target:
+          entity_id: cover.master_bedroom_west_curtain
+        data:
+          position: 50
+      - service: cover.set_cover_position
+        target:
+          entity_id: cover.master_bedroom_east_curtain
+        data:
+          position: 100
