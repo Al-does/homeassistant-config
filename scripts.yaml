@@ -248,11 +248,6 @@ al_is_tired:
  alias: "Al's Tired"
  sequence:
    - service: light.turn_on
-     target:
-      entity_id: light.master_bathroom_vanity_lights
-     data:
-       brightness_pct: 5
-   - service: light.turn_on
      data:
        entity_id: light.hue_color_lamp_1
        brightness: 38
