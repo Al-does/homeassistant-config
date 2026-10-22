@@ -514,7 +514,7 @@ input_number:
 
   light_hue_white_lamp_2_max_brightness:
     name: Hue White Lamp 2 Max Brightness
-    initial: 0
+    initial: 250
     min: 0
     max: 255
     step: 1
@@ -528,7 +528,7 @@ input_number:
     
   light_hue_white_lamp_3_max_brightness:
     name: Hue White Lamp 3 Max Brightness
-    initial: 0
+    initial: 250
     min: 0
     max: 255
     step: 1
@@ -542,7 +542,7 @@ input_number:
     
   light_living_room_pendants_max_brightness:
     name: Living Room Pendants Max Brightness
-    initial: 0
+    initial: 255
     min: 0
     max: 255
     step: 1
