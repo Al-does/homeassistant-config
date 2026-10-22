@@ -166,7 +166,7 @@ reactivate_wled_dimmer:
 
 make_kitchen_bright_again:
  alias: "Make the Kitchen Bright Again"
- description: "Sets kitchen lights to configured max brightness and turns off associated booleans"
+ description: "Sets kitchen lights to configured max brightness and turns off associated booleans. Lights with max_brightness 0 (fader-excluded, e.g. overheads) are sent to 255."
  mode: single
  sequence:
   - repeat:
@@ -181,7 +181,7 @@ make_kitchen_bright_again:
           target:
             entity_id: "{{ repeat.item }}"
           data:
-            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) }}"
+            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) or 255 }}"
   - service: input_boolean.turn_off
     target:
       entity_id:
@@ -213,7 +213,7 @@ make_art_room_bright_again:
 
 make_dining_room_bright_again:
  alias: "Make the dining Room Bright Again"
- description: "Sets dining room lights to configured max brightness and turns off associated booleans"
+ description: "Sets dining room lights to configured max brightness and turns off associated booleans. Lights with max_brightness 0 (fader-excluded, e.g. pendants) are sent to 255."
  mode: single
  sequence:
   - repeat:
@@ -231,7 +231,7 @@ make_dining_room_bright_again:
           target:
             entity_id: "{{ repeat.item }}"
           data:
-            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) }}"
+            brightness: "{{ states('input_number.' ~ repeat.item | replace('.', '_') ~ '_max_brightness') | int(255) or 255 }}"
   - service: input_boolean.turn_off
     target:
       entity_id:
