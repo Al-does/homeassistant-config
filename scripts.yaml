@@ -326,7 +326,7 @@ als_going_to_bed:
        - light.master_bathroom_vanity_lights
        - light.hue_color_lamp_1
    - delay:
-       minutes: 20
+       minutes: 12
    - service: script.turn_on
      target:
       entity_id: script.bedroom_curtains_close
