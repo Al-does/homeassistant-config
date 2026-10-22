@@ -148,9 +148,19 @@ views:
             show_state: true
             tap_action:
               action: toggle
-      - type: thermostat
-        entity: climate.bedroom_2
-        name: Bedroom
+      - type: horizontal-stack
+        cards:
+          - type: thermostat
+            entity: climate.bedroom_2
+            name: Bedroom
+          - type: entities
+            title: Remote Sensors
+            show_header_toggle: false
+            entities:
+              - entity: sensor.k827_temperature
+                name: Bedroom Nightstand
+              - entity: sensor.living_room_temperature_2
+                name: Top Floor
       - type: entities
         title: Bedroom Air Quality
         show_header_toggle: false
