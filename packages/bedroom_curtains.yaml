@@ -37,3 +37,18 @@ script:
           entity_id: cover.master_bedroom_east_curtain
         data:
           position: 100
+
+  bedroom_curtains_west_90_closed:
+    alias: Bedroom curtains - west 90% closed, east closed
+    mode: single
+    sequence:
+      - service: cover.set_cover_position
+        target:
+          entity_id: cover.master_bedroom_west_curtain
+        data:
+          position: 10
+      - service: cover.set_cover_position
+        target:
+          entity_id: cover.master_bedroom_east_curtain
+        data:
+          position: 0
