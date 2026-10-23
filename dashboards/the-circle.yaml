@@ -148,6 +148,10 @@ views:
             show_state: true
             tap_action:
               action: toggle
+      - type: tile
+        entity: sensor.sonoff_temp_sensor
+        name: Sauna Temperature
+        icon: mdi:thermometer
       - type: horizontal-stack
         cards:
           - type: thermostat
