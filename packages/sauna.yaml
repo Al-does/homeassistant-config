@@ -6,11 +6,11 @@ input_boolean:
     icon: mdi:thermometer-alert
 
 automation:
-  - id: sauna_temp_145_notify
+  - id: sauna_temp_160_notify
     alias: Sauna temperature high - notify
     description: >-
       Buzz Alex and Anna's devices when the SONOFF sauna temperature reaches
-      145°F. Re-alerts only after it drops below 140°F for 2 minutes.
+      160°F. Re-alerts only after it drops below 155°F for 2 minutes.
     mode: single
     trigger:
       - platform: state
@@ -18,16 +18,15 @@ automation:
     condition:
       - condition: numeric_state
         entity_id: sensor.sonoff_temp_sensor
-        above: 144.9
+        above: 159.9
       - condition: state
         entity_id: input_boolean.sauna_temp_alert_active
         state: "off"
     action:
       - service: notify.send_message
         data:
-          title: Sauna temperature high
-          message: >-
-            Sauna temperature is {{ states('sensor.sonoff_temp_sensor') }}°F.
+          title: Annex Sauna
+          message: Annex Sauna is Ready!
         target:
           entity_id:
             - notify.pixel_10_fold_jade
@@ -41,13 +40,13 @@ automation:
   - id: sauna_temp_clear_latch
     alias: Sauna temperature - clear alert latch
     description: >-
-      Reset notification latch once sauna temperature falls below 140°F for
+      Reset notification latch once sauna temperature falls below 155°F for
       2 minutes.
     mode: single
     trigger:
       - platform: numeric_state
         entity_id: sensor.sonoff_temp_sensor
-        below: 140
+        below: 155
         for:
           minutes: 2
     action:

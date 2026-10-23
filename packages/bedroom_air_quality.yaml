@@ -36,7 +36,7 @@ automation:
   - id: bedroom_aqi_high_notify
     alias: Bedroom AQI high - notify
     description: >-
-      Buzz phone when bedroom US AQI exceeds 40 (~9.6 µg/m³ PM2.5).
+      Buzz Alex's devices when bedroom US AQI exceeds 40 (~9.6 µg/m³ PM2.5).
       Re-alerts only after AQI drops below 35 (~8.4 µg/m³).
     mode: single
     trigger:
@@ -57,12 +57,11 @@ automation:
             Bedroom AQI is {{ states('sensor.bedroom_us_aqi') }}
             (PM2.5 {{ states('sensor.master_bedroom_bedroom_air_quality_sensor_pm2_5') }} µg/m³).
             Consider ventilating.
-          data:
-            ttl: 0
-            priority: high
-            vibrationPattern: [0, 500, 200, 500, 200, 500]
         target:
-          entity_id: person.alex_vardakostas
+          entity_id:
+            - notify.pixel_10_fold_jade
+            - notify.pixel_watch_3
+            - notify.samsung_ultra_2
       - service: input_boolean.turn_on
         target:
           entity_id: input_boolean.bedroom_aqi_alert_active

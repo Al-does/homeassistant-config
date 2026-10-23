@@ -4,7 +4,7 @@ automation:
   - id: garage_door_left_open_notify
     alias: Garage door left open - notify
     description: >-
-      Buzz Alex and Anna's phones when the garage door stays open
+      Buzz Alex and Anna's devices when the garage door stays open
       for more than 5 minutes.
     mode: single
     trigger:
@@ -19,11 +19,9 @@ automation:
           title: Garage door left open
           message: >-
             The garage door has been open for more than 5 minutes.
-          data:
-            ttl: 0
-            priority: high
-            vibrationPattern: [0, 500, 200, 500, 200, 500]
         target:
           entity_id:
-            - person.alex_vardakostas
-            - person.anna_tong
+            - notify.pixel_10_fold_jade
+            - notify.pixel_watch_3
+            - notify.samsung_ultra_2
+            - notify.iphone2
