@@ -28,10 +28,6 @@ automation:
           title: Sauna temperature high
           message: >-
             Sauna temperature is {{ states('sensor.sonoff_temp_sensor') }}°F.
-          data:
-            ttl: 0
-            priority: high
-            vibrationPattern: [0, 500, 200, 500, 200, 500]
         target:
           entity_id:
             - notify.pixel_10_fold_jade
