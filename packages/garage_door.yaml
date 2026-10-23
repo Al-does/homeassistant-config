@@ -22,6 +22,5 @@ automation:
         target:
           entity_id:
             - notify.pixel_10_fold_jade
-            - notify.pixel_watch_3
             - notify.samsung_ultra_2
             - notify.iphone2

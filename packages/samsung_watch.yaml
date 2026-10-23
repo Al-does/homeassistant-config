@@ -1,0 +1,65 @@
+# Samsung watch battery alerts.
+
+input_boolean:
+  samsung_ultra_2_battery_low_alert_active:
+    name: Samsung Ultra 2 Low Battery Alert Active
+    icon: mdi:watch
+
+automation:
+  - id: samsung_ultra_2_battery_low_notify
+    alias: Samsung Ultra 2 - low battery alert
+    description: >-
+      Notify Alex once when the Samsung Ultra 2 battery reaches 35%.
+      Re-alerts only after the battery rises above 40%.
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.samsung_ultra_2_battery_level
+        below: 36
+        id: low
+      - platform: numeric_state
+        entity_id: sensor.samsung_ultra_2_battery_level
+        above: 40
+        id: reset
+      - platform: homeassistant
+        event: start
+        id: startup
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: low
+              - condition: state
+                entity_id: input_boolean.samsung_ultra_2_battery_low_alert_active
+                state: "off"
+            sequence:
+              - service: notify.send_message
+                data:
+                  title: Samsung Ultra 2 battery low
+                  message: >-
+                    Samsung Ultra 2 battery is at
+                    {{ states('sensor.samsung_ultra_2_battery_level') }}%.
+                target:
+                  entity_id:
+                    - notify.pixel_10_fold_jade
+                    - notify.samsung_ultra_2
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.samsung_ultra_2_battery_low_alert_active
+          - conditions:
+              - condition: trigger
+                id: reset
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.samsung_ultra_2_battery_low_alert_active
+          - conditions:
+              - condition: trigger
+                id: startup
+              - condition: template
+                value_template: >-
+                  {{ states('sensor.samsung_ultra_2_battery_level') | float(100) < 36 }}
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.samsung_ultra_2_battery_low_alert_active
