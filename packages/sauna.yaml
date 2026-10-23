@@ -9,7 +9,7 @@ automation:
   - id: sauna_temp_160_notify
     alias: Sauna temperature high - notify
     description: >-
-      Buzz Alex and Anna's phones when the SONOFF sauna temperature reaches
+      Buzz Alex and Anna's devices when the SONOFF sauna temperature reaches
       160°F. Re-alerts only after it drops below 155°F for 2 minutes.
     mode: single
     trigger:
@@ -32,8 +32,10 @@ automation:
             vibrationPattern: [0, 500, 200, 500, 200, 500]
         target:
           entity_id:
-            - person.alex_vardakostas
-            - person.anna_tong
+            - notify.pixel_10_fold_jade
+            - notify.pixel_watch_3
+            - notify.samsung_ultra_2
+            - notify.iphone2
       - service: input_boolean.turn_on
         target:
           entity_id: input_boolean.sauna_temp_alert_active
