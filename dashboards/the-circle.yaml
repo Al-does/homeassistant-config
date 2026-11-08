@@ -6,14 +6,14 @@ views:
       - type: conditional
         conditions:
           - condition: numeric_state
-            entity: sensor.living_room_temperature_2
+            entity: sensor.top_floor_temperature
             above: 78
         card:
           type: markdown
           content: >
             ## ⚠️ Third Floor Hot
 
-            The top floor thermostat is **{{ states('sensor.living_room_temperature_2') }}°F**.
+            The top floor is **{{ states('sensor.top_floor_temperature') }}°F**.
             Consider turning on the A/C or lowering the setpoint.
       - type: conditional
         conditions:
@@ -161,10 +161,10 @@ views:
             title: Remote Sensors
             show_header_toggle: false
             entities:
-              - entity: sensor.k827_temperature
+              - entity: sensor.bedroom_nightstand_temperature
                 name: Bedroom Nightstand
-              - entity: sensor.living_room_temperature_2
-                name: Top Floor
+              - entity: sensor.living_room_temperature
+                name: Living Room
       - type: entities
         title: Bedroom Air Quality
         show_header_toggle: false
@@ -180,15 +180,30 @@ views:
           - entity: sensor.master_bedroom_bedroom_air_quality_sensor_voc_index
             name: VOC Index
       - type: entities
-        title: Top Floor Thermostat
+        title: Living Room Sensor
         show_header_toggle: false
         entities:
-          - entity: sensor.living_room_temperature_2
+          - entity: sensor.living_room_temperature
             name: Temperature
-          - entity: binary_sensor.living_room_occupancy_2
+          - entity: binary_sensor.living_room_occupancy
             name: Occupancy
-          - entity: sensor.living_room_battery_2
+          - entity: sensor.living_room_battery
             name: Battery
+      - type: horizontal-stack
+        cards:
+          - type: thermostat
+            entity: climate.top_floor
+            name: Top Floor
+          - type: entities
+            title: Top Floor
+            show_header_toggle: false
+            entities:
+              - entity: sensor.top_floor_temperature
+                name: Temperature
+              - entity: sensor.top_floor_humidity
+                name: Humidity
+              - entity: binary_sensor.top_floor_occupancy
+                name: Occupancy
       - type: thermostat
         entity: climate.9424b8a1064b
         name: Gree Air Conditioner
