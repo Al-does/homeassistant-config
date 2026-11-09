@@ -205,5 +205,5 @@ views:
               - entity: binary_sensor.top_floor_occupancy
                 name: Occupancy
       - type: thermostat
-        entity: climate.gree_air_conditioner
+        entity: climate.top_floor_gree_air_conditioner
         name: Gree Air Conditioner
